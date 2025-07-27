@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+  <link rel="stylesheet" href="f_home.css" />
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <h2 class="dashboard-heading">Welcome Professor</h2>
+    </div>
+    <div class="header-right">
+      <img src="IIIT LOGO 3.svg" alt="IIIT Logo" class="logo"/>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="shadow-box">
+      <div class="director-photo">
+        <img id="faculty-photo" src="" alt="Professor Photo" />
+      </div>
+      <div class="info">
+        <h3 id="faculty-name">Loading...</h3>
+        <p id="faculty-role">Designation, IIIT Bhubaneswar</p>
+        <p id="faculty-email">Email: ...</p>
+        <button class="logout">Logout</button>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <!-- Row 1 -->
+      <a href="f_notice.html" class="card">
+        <img src="Notice.svg" alt="Notice Board"/>
+        <p>Notice Board</p>
+      </a>
+      <a href="f_student.html" class="card">
+        <img src="./student.svg" alt="Students"/>
+        <p>Students</p>
+      </a>
+      <a href="f_faculty.html" class="card">
+        <img src="./faculty.svg" alt="Faculty"/>
+        <p>Faculty</p>
+      </a>
+      
+      <!-- Row 2 -->
+      <a href="f_timetable.html" class="card">
+        <img src="./timetable.svg" alt="Timetable"/>
+        <p>Timetable</p>
+      </a>
+      <a href="f_grievance.html" class="card">
+        <img src="./grievance.svg" alt="Grievance"/>
+        <p>Grievance</p>
+      </a>
+      <a href="f_password.html" class="card">
+        <img src="./password.svg" alt="Settings"/>
+        <p>Change Password</p>
+      </a>
+      
+      <!-- Row 3 - Single centered card -->
+      <a href="f_current.html" class="card">
+        <img src="./teaching-icon.svg" alt="Teaching"/>
+        <p>Current Teaching</p>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const email = localStorage.getItem("email");
+      const uid = localStorage.getItem("uid");
+      const baseUrl = "https://13.201.146.238";
+
+      if (!email) {
+        alert("No email found in localStorage.");
+        return;
+      }
+
+      try {
+        const facultyRes = await fetch(`https://13.201.146.238/api/faculty/email/${email}`);
+        if (!facultyRes.ok) throw new Error("Faculty fetch failed");
+        const faculty = await facultyRes.json();
+
+        document.getElementById("faculty-name").textContent = faculty.name;
+        document.getElementById("faculty-role").textContent = `${faculty.designation}, IIIT Bhubaneswar`;
+        document.getElementById("faculty-email").textContent = `Email: ${faculty.contact}`;
+
+        const imageRes = await fetch(`https://13.201.146.238/api/github/faculty-image-url/${faculty.id}`);
+        if (!imageRes.ok) throw new Error("Image fetch failed");
+        const imageUrl = await imageRes.text();
+
+        document.getElementById("faculty-photo").src = imageUrl;
+      } catch (error) {
+        console.error("Error loading faculty info:", error);
+        document.getElementById("faculty-name").textContent = "Error loading faculty data";
+        document.getElementById("faculty-role").textContent = "";
+        document.getElementById("faculty-email").textContent = "";
+        document.getElementById("faculty-photo").src = "placeholder.png"; // fallback
+      }
+
+        const logoutButton = document.querySelector(".logout");
+    if (logoutButton) {
+      logoutButton.addEventListener("click", async () => {
+        try {
+          const response = await fetch(`${baseUrl}/api/auth/logout?uid=${encodeURIComponent(uid)}`, {
+            method: "POST"
+          });
+
+          if (response.ok) {
+            localStorage.clear();               // Clear session
+            window.location.href = "index.html"; // Redirect to home/landing
+          } else {
+            const errorText = await response.text();
+            alert("Logout failed: " + errorText);
+          }
+        } catch (error) {
+          alert("Error connecting to server: " + error.message);
+        }
+      });
+    }
+    });
+
+
+
+  </script>
+</body>
+</html>

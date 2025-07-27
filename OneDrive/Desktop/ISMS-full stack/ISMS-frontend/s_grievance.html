@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="s_grievance.css">
+</head>
+<body>
+    <div class="top-bar">
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="portal-title">
+            <img src="IIIT%20LOGO%203.svg" alt="IIIT Logo" class="logo">
+            <span>Student Portal</span>
+        </div>
+        <div class="top-buttons">
+            <a href="login.html" class="top-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <ul class="nav-links">
+                <li><a href="s_faculty.html"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a></li>
+                <li><a href="s_student.html"><i class="fas fa-user-graduate"></i> Student Details</a></li>
+                <li><a href="s_notice.html"><i class="fas fa-bullhorn"></i> Notice Board</a></li>
+                <li><a href="s_timetable.html"><i class="fas fa-clock"></i> Timetable</a></li>
+                <li><a href="s_grievance.html"><i class="fas fa-comment-alt"></i> Grievance</a></li>
+                <li><a href="s_courses.html"><i class="fas fa-book"></i> Classes</a></li>
+                <li><a href="s_grade.html"><i class="fas fa-chart-bar"></i> Grades</a></li>
+                <li><a href="s_library.html"><i class="fas fa-book-open"></i> Books</a></li>
+                <li><a href="s_outstanding.html"><i class="fas fa-money-bill-wave"></i> Outstanding</a></li>
+                <li><a href="s_fee.html"><i class="fas fa-file-invoice-dollar"></i> Fee Ledger</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+        <div class="headline-slab">
+            <h1><i class="fas fa-comment-alt"></i> Grievance Portal</h1>
+            <hr />
+        </div>
+
+        <!-- Grievance Submission Form -->
+        <div class="grievance-form-section">
+            <div class="search-container">
+                <select id="addressedTo">
+    <option value="" disabled selected>Select Person to Address</option>
+    <!-- Options will be populated dynamically -->
+</select>
+                <input type="text" id="grievanceSubject" placeholder="Enter Subject" />
+                <textarea id="grievanceDescription" placeholder="Enter Description" rows="5"></textarea>
+                <button onclick="submitGrievance()">Submit</button>
+            </div>
+        </div>
+
+        <!-- Grievance History -->
+        <div class="grievance-history-section">
+            <div class="headline-slab">
+                <h1><i class="fas fa-history"></i> Grievance History</h1>
+                <hr />
+            </div>
+            <div class="grievance-history" id="grievanceHistory">
+                <!-- Grievances will be populated here -->
+            </div>
+        </div>
+
+        <!-- Grievance Details Popup -->
+        <div class="popup-overlay" id="grievancePopupOverlay">
+            <div class="grievance-popup">
+                <h3 id="grievancePopupSubject"></h3>
+                <div class="grievance-details">
+                    <p><strong>Description:</strong> <span id="grievancePopupDescription"></span></p>
+                    <p><strong>Addressed To:</strong> <span id="grievancePopupAddressedTo"></span></p>
+                    <p><strong>Status:</strong> <span id="grievancePopupStatus" class="status-tag"></span></p>
+                </div>
+                <div class="forward-chain-section">
+                    <h4>Forward Chain & Actions</h4>
+                    <div class="forward-chain" id="forwardChain"></div>
+                </div>
+                <button class="close-btn" onclick="closeGrievancePopup()">Close</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Populate grievance history on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            populateGrievanceHistory();
+        });
+function populateGrievanceHistory() {
+    const email = localStorage.getItem("email");
+    if (!email) {
+        window.location.href = "login.html";
+
+        return;
+    }
+
+    fetch(`https://13.201.146.238/grievances/by-email/full?email=${email}`)
+        .then(response => response.json())
+        .then(data => {
+            const grievanceHistory = document.getElementById('grievanceHistory');
+            grievanceHistory.innerHTML = '';
+
+            if (data.length === 0) {
+                grievanceHistory.innerHTML = '<p>No grievances found.</p>';
+                return;
+            }
+
+            data.forEach(grievance => {
+                const item = document.createElement('div');
+                item.classList.add('grievance-item');
+
+                item.innerHTML = `
+                    <div class="grievance-summary">
+                        <p><strong>${grievance.title}</strong></p>
+                        <p>Addressed To: ${grievance.addressedTo}</p>
+                        <span class="status-tag ${grievance.status.toLowerCase().replace(' ', '-')}">${grievance.status}</span>
+                    </div>
+                `;
+
+                // Attach event listener to show details
+                item.addEventListener('click', () => showGrievancePopup(grievance));
+                grievanceHistory.appendChild(item);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching grievances:', error);
+            alert("Failed to load grievance history.");
+        });
+}
+
+        function submitGrievance() {
+    const addressedTo = document.getElementById('addressedTo').value;
+    const title = document.getElementById('grievanceSubject').value;
+    const content = document.getElementById('grievanceDescription').value;
+
+    if (!addressedTo || !title || !content) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    const email = localStorage.getItem("email");
+    if (!email) {
+        alert("User not logged in.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const studentId = email.split("@")[0]; // "b123001" from "b123001@iiit-bh.ac.in"
+
+    fetch(`https://13.201.146.238/grievances/create?studentId=${studentId}&facultyNotationName=${encodeURIComponent(addressedTo)}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title: title,
+            content: content,
+            from: studentId,
+            addressedTo: addressedTo
+        })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Failed to submit grievance.");
+        return response.text();
+    })
+    .then(data => {
+        alert("Grievance submitted successfully!");
+        // Optional: refresh grievance list after submit
+        populateGrievanceHistory();
+        // Clear form
+        document.getElementById('addressedTo').value = '';
+        document.getElementById('grievanceSubject').value = '';
+        document.getElementById('grievanceDescription').value = '';
+    })
+    .catch(error => {
+        console.error("Error submitting grievance:", error);
+        alert("Something went wrong while submitting the grievance.");
+    });
+}
+
+
+        // Fetch and populate officials in the "Addressed To" dropdown
+function populateOfficialsDropdown() {
+    fetch('https://13.201.146.238/officials/notations')
+        .then(response => response.json())
+        .then(data => {
+            const dropdown = document.getElementById('addressedTo');
+            data.forEach(notation => {
+                const option = document.createElement('option');
+                option.value = notation;
+                option.textContent = notation;
+                dropdown.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching notations:', error);
+            alert("Failed to load official list.");
+        });
+}
+
+
+function showGrievancePopup(grievance) {
+    // Set basic details
+    document.getElementById('grievancePopupSubject').textContent = grievance.title || grievance.subject || 'No Subject';
+    document.getElementById('grievancePopupDescription').textContent = grievance.content || grievance.description || 'No Description';
+    document.getElementById('grievancePopupAddressedTo').textContent = grievance.addressedTo || 'Unknown';
+
+    // Handle status (status or finalStatus fallback)
+    const status = grievance.status || grievance.finalStatus || 'Pending';
+    const statusSpan = document.getElementById('grievancePopupStatus');
+    statusSpan.textContent = status;
+    statusSpan.className = `status-tag ${status.toLowerCase().replace(' ', '-')}`;
+
+    // Handle forward chain (single forwarding_chain object or empty)
+    const forwardChain = document.getElementById('forwardChain');
+    forwardChain.innerHTML = '';
+
+    if (grievance.forwarding_chain) {
+        const chain = grievance.forwarding_chain;
+        const item = document.createElement('div');
+        item.classList.add('forward-item');
+        item.innerHTML = `
+            <p><strong>From: ${chain.forwardedFrom}</strong></p>
+            <p><strong>To: ${chain.forwardedTo}</strong></p>
+            <p><strong>Date: ${chain.formattedForwardedTime}</strong></p>
+            <p>Note: ${chain.forwardingNote}</p>
+        `;
+        forwardChain.appendChild(item);
+    } else {
+        forwardChain.innerHTML = '<p>No forwarding history.</p>';
+    }
+
+    // Show popup
+    document.getElementById('grievancePopupOverlay').style.display = 'block';
+    document.querySelector('.grievance-popup').style.display = 'flex';
+}
+
+
+        function closeGrievancePopup() {
+            document.getElementById('grievancePopupOverlay').style.display = 'none';
+            document.querySelector('.grievance-popup').style.display = 'none';
+        }
+
+        // Navbar toggle
+        document.querySelector('.menu-toggle').addEventListener('click', () => {
+            document.querySelector('.navbar').classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+    populateGrievanceHistory();
+    populateOfficialsDropdown(); // <- Add this line
+});
+
+    </script>
+</body>
+</html>

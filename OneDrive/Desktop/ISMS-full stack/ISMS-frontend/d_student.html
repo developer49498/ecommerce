@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="d_student.css">
+</head>
+<body>
+
+<header class="mobile-header">
+    <button id="menuToggle"><i class="fas fa-bars"></i></button>
+    <h2>Student Details</h2>
+</header>
+
+<div class="container">
+    <aside class="sidebar" id="sidebar">
+        <a href="d_home.html" class="back-btn-sidebar">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <nav class="nav-options">
+  <a href="d_notice.html" class="side-btn"><i class="fas fa-bullhorn"></i> Notice Board</a>
+  <a href="d_student.html" class="side-btn"><i class="fas fa-user-graduate"></i> Student Details</a>
+  <a href="d_faculty.html" class="side-btn"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a>
+  <a href="d_timetable.html" class="side-btn"><i class="fas fa-calendar-alt"></i> Timetable</a>
+  <a href="d_grievance.html" class="side-btn"><i class="fas fa-comment-alt"></i> Grievance</a>
+   
+</nav>
+        <div class="logo-container">
+            <img src="IIIT LOGO 3.svg" alt="IIIT Logo" class="logo"/>
+            <p class="footer-text">IIIT Student Management System</p>
+            <a href="https://www.iiit-bh.ac.in" class="footer-link" target="_blank">www.iiit-bh.ac.in</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="header-line">
+            <h1><i class="fas fa-user-graduate"></i> Student Details</h1>
+            <hr />
+        </div>
+
+        <div class="student-section">
+            <div class="filter-bar">
+                <div>
+                    <label for="filterYear">Admission Year</label><br>
+                    <select id="filterYear">
+                        <option value="">All</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filterBranch">Branch</label><br>
+                    <select id="filterBranch">
+                        <option value="">All</option>
+                        <option value="CSE">CSE</option>
+                        <option value="IT">IT</option>
+                        <option value="EEE">EEE</option>
+                        <option value="ETC">ETC</option>
+                        <option value="CE">CE</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filterProgramme">Programme</label><br>
+                    <select id="filterProgramme">
+                        <option value="">All</option>
+                        <option value="b-tech">B.Tech</option>
+                        <option value="m-tech">M.Tech</option>
+                        <option value="phd">Ph.D</option>
+                    </select>
+                </div>
+            </div>
+            <div class="search-container">
+                <input type="text" id="searchID" placeholder="Search by ID" />
+                <input type="text" id="searchName" placeholder="Search by Name" />
+                <button onclick="searchStudents()">Search</button>
+            </div>
+
+            <div class="results-container">
+                <ul id="studentList"></ul>
+                <div id="noResultsMessage">No students found matching your search criteria.</div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="popup-overlay" id="popupOverlay"></div>
+<div class="student-popup" id="studentPopup">
+    <img id="popupPhoto" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHZRC_JCJG4XCFypC11H549nZXGFvUTJO8qQ&s" alt="Student Photo" />
+    <h3 id="popupName">Student Name</h3>
+    <div class="student-info-grid">
+        <div class="label">ID:</div><div class="value" id="popupID"></div>
+        <div class="label">Branch:</div><div class="value" id="popupBranch"></div>
+        <div class="label">Program:</div><div class="value" id="popupProgram"></div>
+        <div class="label">Contact:</div><div class="value" id="popupContact"></div>
+        <div class="label">Phone:</div><div class="value" id="popupPhone"></div>
+        <div class="label">Grade:</div><div class="value" id="popupGrade"></div>
+        <div class="label">Last Login:</div><div class="value" id="popupLogin"></div>
+    </div>
+    <button class="close-btn" onclick="closePopup()">Close</button>
+</div>
+
+<script>
+    // Disable the other search input when one is active
+document.getElementById('searchID').addEventListener('input', function () {
+    document.getElementById('searchName').disabled = this.value.trim() !== '';
+});
+
+document.getElementById('searchName').addEventListener('input', function () {
+    document.getElementById('searchID').disabled = this.value.trim() !== '';
+});
+
+// Main search function
+function searchStudents() {
+    const idQuery = document.getElementById('searchID').value.trim().toLowerCase();
+    const nameQuery = document.getElementById('searchName').value.trim().toLowerCase();
+    const year = document.getElementById('filterYear').value || 'all';
+    const branch = document.getElementById('filterBranch').value || 'all';
+    const programme = document.getElementById('filterProgramme').value || 'all';
+    const list = document.getElementById('studentList');
+    const noResult = document.getElementById('noResultsMessage');
+
+    // Clear previous results and messages
+    list.innerHTML = '';
+    list.style.display = 'none';
+    noResult.style.display = 'none';
+
+    let url = '';
+
+    if (idQuery !== '') {
+        // Construct URL for search by ID
+        url = `https://13.201.146.238/api/students/searchById/${encodeURIComponent(branch)}/${encodeURIComponent(programme)}/${encodeURIComponent(year)}/${encodeURIComponent(idQuery)}`;
+    } else if (nameQuery !== '') {
+        // Construct URL for search by name (recursive)
+        url = `https://13.201.146.238/api/students/searchByNameRecursive/${encodeURIComponent(branch)}/${encodeURIComponent(programme)}/${encodeURIComponent(year)}?name=${encodeURIComponent(nameQuery)}`;
+    } else {
+        noResult.textContent = 'Please enter either ID or Name.';
+        noResult.style.display = 'block';
+        return;
+    }
+
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch students');
+        return response.json();
+    })
+    .then(data => {
+        // Handle single object or array response
+        let students = [];
+        if (Array.isArray(data)) {
+            students = data;
+        } else if (data && typeof data === 'object') {
+            students = [data];
+        }
+
+        if (students.length === 0) {
+            noResult.textContent = 'No students found matching your search criteria.';
+            noResult.style.display = 'block';
+            return;
+        }
+
+        // Show results list
+        list.style.display = 'block';
+
+        // Populate the list
+        students.forEach(student => {
+            const li = document.createElement('li');
+            li.textContent = `${student.name} (${student.id}) - ${student.branch} ${student.programme}`;
+            li.onclick = () => showStudentDetails(student);
+            list.appendChild(li);
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        noResult.textContent = 'An error occurred while fetching students.';
+        noResult.style.display = 'block';
+    });
+}
+
+
+// Popup display function
+function showStudentDetails(student) {
+  document.getElementById('popupName').innerText = student.name;
+  document.getElementById('popupID').innerText = student.id;
+  document.getElementById('popupBranch').innerText = student.branch;
+  document.getElementById('popupProgram').innerText = student.programme;
+  document.getElementById('popupContact').innerText = student.email;
+  document.getElementById('popupPhone').innerText = student.phone;
+  document.getElementById('popupGrade').innerText = student.grade;
+  document.getElementById('popupLogin').innerText = student.lastLogin;
+
+  const year = document.getElementById('filterYear').value || 'all';
+
+  const url = `https://13.201.146.238/api/github/link/${student.programme}/${student.branch}/${year}/${student.id}.jpg`;
+
+  console.log("Fetching image from:", url); // ✅ See the full request
+
+  // First fetch the actual image URL from your backend
+  fetch(url)
+    .then(response => {
+      if (!response.ok) throw new Error("Failed to fetch image URL");
+      return response.text(); // Backend returns image URL as plain text
+    })
+    .then(imageUrl => {
+      console.log("Resolved GitHub raw image URL:", imageUrl); // ✅ Print actual GitHub raw link
+      document.getElementById('popupPhoto').src = imageUrl; // Set real GitHub URL
+    })
+    .catch(error => {
+      console.error("Error loading student image:", error);
+      document.getElementById('popupPhoto').src = 'default-image.jpg'; // fallback image
+    });
+
+  document.getElementById('studentPopup').style.display = 'flex';
+  document.getElementById('popupOverlay').style.display = 'block';
+}
+
+
+// Popup close function
+function closePopup() {
+    document.getElementById('studentPopup').style.display = 'none';
+    document.getElementById('popupOverlay').style.display = 'none';
+}
+
+// Filter or Enter triggers search
+document.getElementById('searchID').addEventListener('keypress', e => {
+    if (e.key === 'Enter') searchStudents();
+});
+
+document.getElementById('searchName').addEventListener('keypress', e => {
+    if (e.key === 'Enter') searchStudents();
+});
+
+document.getElementById('filterYear').addEventListener('change', searchStudents);
+document.getElementById('filterBranch').addEventListener('change', searchStudents);
+document.getElementById('filterProgramme').addEventListener('change', searchStudents);
+
+// Populate year dropdown on load
+document.addEventListener('DOMContentLoaded', function () {
+    const yearSelect = document.getElementById('filterYear');
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear + 5; y >= 1980; y--) {
+        const opt = document.createElement('option');
+        opt.value = String(y);
+        opt.textContent = y;
+        yearSelect.appendChild(opt);
+    }
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="e_fupdate.css">
+</head>
+<body>
+<header class="mobile-header">
+  <button id="menuToggle" aria-label="Toggle Menu"><i class="fas fa-bars"></i></button>
+  <h2>Faculty Update</h2>
+</header>
+
+<div class="container">
+  <div class="scroll-container">
+    <aside class="sidebar" id="sidebar">
+      <a href="e_home.html" class="back-btn-sidebar">
+        <i class="fas fa-arrow-left"></i>
+        Back to Dashboard
+      </a>
+    <a href="e_notice.html" class="side-btn"><i class="fas fa-bullhorn"></i> Notice Board</a>
+<a href="e_student.html" class="side-btn"><i class="fas fa-user-graduate"></i> Student Details</a>
+<a href="e_fee.html" class="side-btn"><i class="fas fa-address-book"></i> Student FeeLedger</a>
+<a href="e_supdate.html" class="side-btn"><i class="fas fa-upload"></i> Student Update</a>
+<a href="e_faculty.html" class="side-btn"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a>
+<a href="e_fupdate.html" class="side-btn"><i class="fas fa-user-edit"></i> Faculty Update</a>
+<a href="e_ginput.html" class="side-btn"><i class="fas fa-clipboard-check"></i> Grade Input</a>
+<a href="e_grade.html" class="side-btn"><i class="fas fa-graduation-cap"></i> Student Grade Details</a>
+<a href="e_timetable.html" class="side-btn active"><i class="fas fa-calendar-alt"></i> Timetable</a>
+
+      
+      
+      
+      <div class="logo-container">
+        <img src="IIIT LOGO 3.svg" alt="IIIT Logo" class="logo"/>
+        <p class="footer-text">IIIT Student Management System</p>
+        <a href="https://www.iiit-bh.ac.in" class="footer-link" target="_blank">www.iiit-bh.ac.in</a>
+      </div>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+      <div class="header-line">
+        <h1><i class="fas fa-upload"></i> Faculty Update</h1>
+        <hr />
+      </div>
+      <div class="student-update-container">
+        <div class="update-slab">
+          <h2><i class="fas fa-user-plus"></i> Create New Faculty with Email</h2>
+          <form id="createStudentForm">
+            <div class="form-group">
+              <label for="createProgram">Select Designation</label>
+              <select id="createProgram" required>
+                <option value="">-- Designation --</option>
+                <option value="Faculty">Faculty</option>
+                
+                <option value="Director">Director</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="createExcelFile">Upload Excel File:</label>
+              <input type="file" id="createExcelFile" accept=".xlsx, .xls" required>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+          </form>
+        </div>
+
+        <div class="update-slab">
+          <h2><i class="fas fa-upload"></i> Upload Faculty Data</h2>
+          <form id="uploadStudentDataForm">
+            <div class="form-group">
+              <label forमा="uploadProgram">Select Designation:</label>
+              <select id="uploadProgram" required>
+                <option value="">-- Designation --</option>
+                <option value="Faculty">Faculty</option>
+                
+                <option value="Director">Director</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="uploadExcelFile">Upload Excel File:</label>
+              <input type="file" id="uploadExcelFile" accept=".xlsx, .xls" required>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+          </form>
+        </div>
+
+        <div class="update-slab">
+          <h2><i class="fas fa-images"></i> Upload Faculty Images</h2>
+          <form id="uploadStudentImagesForm">
+            <div class="form-group">
+              <label for="imageProgram">Select Designation:</label>
+              <select id="imageProgram" required>
+                <option value="">-- Designation --</option>
+                <option value="Faculty">Faculty</option>
+                
+                <option value="Director">Director</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="imageFolder">Upload Image Folder (JPG format):</label>
+              <input type="file" id="imageFolder" webkitdirectory directory multiple accept=".jpg, .jpeg" required>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+          </form>
+        </div>
+        <div class="update-slab">
+          <h2><i class="fab fa-google"></i> Add New Faculty Email ID</h2>
+          <form id="googleGroupsForm">
+            <div class="form-group">
+              <label for="groupsProgram">Select Designation:</label>
+              <select id="groupsProgram" required>
+                <option value="">-- Designation --</option>
+                <option value="Faculty">Faculty</option>
+               
+                <option value="Director">Director</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="groupsExcelFile">Upload Excel File:</label>
+              <input type="file" id="googleGroupsFile" accept=".xlsx, .xls" required>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+          </form>
+        </div>
+
+        <div class="update-slab">
+          <h2><i class="fab fa-google"></i>Assign course to faculty</h2>
+          <form id="CourseAssignmentForm">
+            
+            <div class="form-group">
+              <label for="courseExcelFile">Upload Excel File:</label>
+              <input type="file" id="CourseAssignmentFile" accept=".xlsx, .xls" required>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+          </form>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("mainContent");
+
+  // Sidebar toggle for mobile
+  menuToggle.addEventListener("click", (e) => {
+    e.stopPropagation(); // Prevent click from closing sidebar immediately
+    sidebar.classList.toggle("show");
+    // Toggle aria-expanded for accessibility
+    menuToggle.setAttribute("aria-expanded", sidebar.classList.contains("show"));
+  });
+
+  // Close sidebar when clicking outside on mobile
+  document.addEventListener("click", (e) => {
+    if (window.innerWidth <= 768 && sidebar.classList.contains("show")) {
+      if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+        sidebar.classList.remove("show");
+        menuToggle.setAttribute("aria-expanded", "false");
+      }
+    }
+  });
+
+  // Close sidebar when a sidebar link/button is clicked
+  sidebar.addEventListener("click", (e) => {
+    if (window.innerWidth <= 768 && (e.target.closest(".side-btn") || e.target.closest(".back-btn-sidebar"))) {
+      sidebar.classList.remove("show");
+      menuToggle.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  // Synchronized scrolling between sidebar and main content
+  let isSyncingSidebar = false;
+  let isSyncingMain = false;
+
+  sidebar.addEventListener("scroll", () => {
+    if (!isSyncingSidebar) {
+      isSyncingMain = true;
+      const sidebarScrollRatio = sidebar.scrollTop / (sidebar.scrollHeight - sidebar.clientHeight);
+      mainContent.scrollTop = sidebarScrollRatio * (mainContent.scrollHeight - mainContent.clientHeight);
+    }
+    isSyncingSidebar = false;
+  });
+
+  mainContent.addEventListener("scroll", () => {
+    if (!isSyncingMain) {
+      isSyncingSidebar = true;
+      const mainScrollRatio = mainContent.scrollTop / (mainContent.scrollHeight - mainContent.clientHeight);
+      sidebar.scrollTop = mainScrollRatio * (sidebar.scrollHeight - sidebar.clientHeight);
+    }
+    isSyncingMain = false;
+  });
+
+  // Form submission handlers
+document.getElementById('createStudentForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const fileInput = document.getElementById('createExcelFile');
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert('Please select an Excel file.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+
+    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+    // Assuming the Excel file has columns: 'email' and 'password'
+    const userList = jsonData.map(row => ({
+      email: row.email,
+      password: row.password
+    }));
+
+    try {
+      const response = await fetch('https://13.201.146.238/api/auth/bulk-create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userList)
+      });
+
+      if (response.ok) {
+        alert('Faculty accounts successfully created!');
+      } else {
+        const errorText = await response.text();
+        alert('Error: ' + errorText);
+      }
+    } catch (error) {
+      alert('Network error: ' + error.message);
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+});
+
+
+document.getElementById('uploadStudentDataForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const fileInput = document.getElementById('uploadExcelFile');
+  const file = fileInput.files[0];
+  const designation = document.getElementById('uploadProgram').value;
+
+  if (!file || !designation) {
+    alert('Please select a designation and upload an Excel file.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+    let endpoint = '';
+    let payload = null;
+
+    if (designation === 'Faculty') {
+      endpoint = 'https://13.201.146.238/api/faculty/add_bulk';
+
+      const facultyList = jsonData.map(row => ({
+        name: row.name,
+        id: row.id,
+        department: row.department,
+        experience: row.experience,
+        qualification: row.qualification,
+        contact: row.contact,
+        designation: row.designation,
+        lastLogin: row.lastLogin,
+        administrative_position: row.administrative_position || "",
+        currentlyTeaching: []
+      }));
+
+      payload = facultyList;
+
+    } else if (designation === 'Director' || designation === 'Registrar') {
+      endpoint = 'https://13.201.146.238/api/director/save_director_details';
+
+      const directorPayload = jsonData.map(row => ({
+        name: row.name,
+        email: row.email,
+        phone: row.phone
+      }));
+
+      // Even if it's a list, we assume each director/registrar is submitted one-by-one
+      for (const entry of directorPayload) {
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entry)
+          });
+          if (!res.ok) {
+            throw new Error(await res.text());
+          }
+        } catch (err) {
+          alert(`Error submitting ${entry.name}: ${err.message}`);
+        }
+      }
+
+      alert(`${designation} data submitted.`);
+      return;
+    }
+
+    // For faculty only — send as array
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        alert('Faculty data uploaded successfully!');
+      } else {
+        const errorText = await response.text();
+        alert('Error: ' + errorText);
+      }
+    } catch (error) {
+      alert('Network error: ' + error.message);
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+});
+
+
+document.getElementById('uploadStudentImagesForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const designation = document.getElementById('imageProgram').value;
+  const imageInput = document.getElementById('imageFolder');
+  const files = Array.from(imageInput.files);
+
+  if (!designation || files.length === 0) {
+    alert('Please select a designation and at least one image.');
+    return;
+  }
+
+  if (designation === 'Director' || designation === 'Registrar') {
+    const file = files[0]; // only one file should be selected
+    const randomString = Math.random().toString(36).substring(2, 10);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch(`https://13.201.146.238/api/github/upload-director-image?file=${randomString}`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (res.ok) {
+        alert(`${designation} image uploaded successfully.`);
+      } else {
+        const errText = await res.text();
+        alert('Error: ' + errText);
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    }
+
+  } else if (designation === 'Faculty') {
+    const formData = new FormData();
+    files.forEach((file, index) => {
+      formData.append("files", file); // backend expects array under 'files'
+    });
+
+    try {
+      const res = await fetch('https://13.201.146.238/api/github/upload-faculty-images', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (res.ok) {
+        alert('Faculty images uploaded successfully.');
+      } else {
+        const errText = await res.text();
+        alert('Error: ' + errText);
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    }
+  }
+});
+
+
+ document.getElementById('googleGroupsForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const fileInput = document.getElementById('googleGroupsFile');
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert('Please upload an Excel file.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+    try {
+      const response = await fetch('https://13.201.146.238/groups/bulk-upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData)
+      });
+
+      if (response.ok) {
+        alert('Google Groups created successfully!');
+      } else {
+        const errorText = await response.text();
+        alert('Error: ' + errorText);
+      }
+    } catch (error) {
+      alert('Network error: ' + error.message);
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+});
+
+
+document.getElementById('CourseAssignmentForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const fileInput = document.getElementById('CourseAssignmentFile');
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert('Please upload an Excel file.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rawData = XLSX.utils.sheet_to_json(sheet);
+
+    const processedData = rawData.map(row => {
+      const branchSection = {};
+
+      // Collect all keys from the row that match branchSectionKeyN pattern
+      const keys = Object.keys(row);
+      const sectionKeys = keys.filter(k => /^branchSectionKey\d+$/.test(k));
+
+      sectionKeys.forEach(keyName => {
+        // Extract the index number
+        const index = keyName.match(/\d+$/)[0];
+
+        const branchKey = row[`branchSectionKey${index}`];
+        const roomNumber = row[`roomNumber${index}`];
+        const batch = row[`batch${index}`];
+
+        if (branchKey && roomNumber && batch) {
+          branchSection[branchKey] = {
+            roomNumber: roomNumber,
+            batch: batch.toString()
+          };
+        }
+      });
+
+      return {
+        facultyName: row.facultyName,
+        courseId: row.courseId,
+        courseName: row.courseName,
+        semester: row.semester.toString(),
+        credits: Number(row.credits),
+        branchSection: branchSection
+      };
+    });
+
+    try {
+      const response = await fetch('https://13.201.146.238/assigned_courses/assign/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(processedData)
+      });
+
+      if (response.ok) {
+        alert('Courses assigned successfully!');
+      } else {
+        const errorText = await response.text();
+        alert('Error: ' + errorText);
+      }
+    } catch (error) {
+      alert('Network error: ' + error.message);
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+});
+
+
+</script>
+
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+</body>
+</html>

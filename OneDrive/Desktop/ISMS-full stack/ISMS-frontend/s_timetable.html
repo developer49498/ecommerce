@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="s_timetable.css">
+</head>
+<body>
+  <div class="top-bar">
+    <div class="menu-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+    <div class="portal-title">
+      <img src="IIIT%20LOGO%203.svg" alt="IIIT Logo" class="logo">
+      <span>Student Portal</span>
+    </div>
+    <div class="top-buttons">
+      <a href="login.html" class="top-btn">
+        <i class="fas fa-sign-out-alt"></i>
+      </a>
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+                <li><a href="s_faculty.html"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a></li>
+                <li><a href="s_student.html"><i class="fas fa-user-graduate"></i> Student Details</a></li>
+                <li><a href="s_notice.html"><i class="fas fa-bullhorn"></i> Notice Board</a></li>
+                <li><a href="s_timetable.html"><i class="fas fa-clock"></i> Timetable</a></li>
+                <li><a href="s_grievance.html"><i class="fas fa-comment-alt"></i> Grievance</a></li>
+                <li><a href="s_courses.html"><i class="fas fa-book"></i> Classes</a></li>
+                <li><a href="s_grade.html"><i class="fas fa-chart-bar"></i> Grades</a></li>
+                <li><a href="s_library.html"><i class="fas fa-book-open"></i> Books</a></li>
+                <li><a href="s_outstanding.html"><i class="fas fa-money-bill-wave"></i> Outstanding</a></li>
+                <li><a href="s_fee.html"><i class="fas fa-file-invoice-dollar"></i> Fee Ledger</a></li>
+            </ul>
+    </div>
+  </nav>
+
+  <main class="dashboard">
+    <div class="header-line">
+      <h1><i class="fas fa-calendar-alt"></i> Timetable</h1>
+      <hr />
+    </div>
+    <div class="pdf-container">
+      <embed id="pdfViewer" src="" type="application/pdf" width="100%" height="550px" />
+    </div>
+    <button class="download-btn">
+      <i class="fas fa-download"></i> Download Timetable
+    </button>
+  </main>
+
+  <script>
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navbar = document.querySelector('.navbar');
+    const body = document.body;
+
+    menuToggle.addEventListener('click', () => {
+      navbar.classList.toggle('active');
+      body.classList.toggle('menu-open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.navbar') && !e.target.closest('.menu-toggle')) {
+        navbar.classList.remove('active');
+        body.classList.remove('menu-open');
+      }
+    });
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        navbar.classList.remove('active');
+        body.classList.remove('menu-open');
+      });
+    });
+
+    async function loadTimetable() {
+      const pdfViewer = document.getElementById("pdfViewer");
+      const downloadBtn = document.querySelector(".download-btn");
+
+      try {
+        const response = await fetch("https://13.201.146.238/api/github/proxy_timetable");
+        if (!response.ok) throw new Error("Failed to fetch timetable");
+
+        const blob = await response.blob();
+        const fileUrl = URL.createObjectURL(blob);
+        pdfViewer.src = fileUrl;
+
+        // Update download link dynamically
+        downloadBtn.onclick = () => {
+          const link = document.createElement("a");
+          link.href = fileUrl;
+          link.download = "timetable.pdf";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        };
+
+      } catch (error) {
+        console.error("Error loading timetable:", error.message);
+        pdfViewer.src = "";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const pdfContainer = document.querySelector(".pdf-container");
+      const downloadBtn = document.querySelector(".download-btn");
+
+      function updateDisplay() {
+        if (window.innerWidth > 768) {
+          pdfContainer.style.display = "flex";
+          downloadBtn.style.display = "none";
+        } else {
+          pdfContainer.style.display = "none";
+          downloadBtn.style.display = "flex";
+        }
+      }
+
+      updateDisplay();
+      window.addEventListener("resize", updateDisplay);
+
+      // Load timetable from backend
+      loadTimetable();
+    });
+  </script>
+</body>
+</html>

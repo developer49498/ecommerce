@@ -1,0 +1,281 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+    <link rel="stylesheet" href="d_notice.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<header class="mobile-header">
+    <button id="menuToggle"><i class="fas fa-bars"></i></button>
+    <h2>Notice Board</h2>
+</header>
+
+<div class="container">
+    <aside class="sidebar" id="sidebar">
+        <a href="d_home.html" class="back-btn-sidebar">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+         <nav class="nav-options">
+  <a href="d_notice.html" class="side-btn"><i class="fas fa-bullhorn"></i> Notice Board</a>
+  <a href="d_student.html" class="side-btn"><i class="fas fa-user-graduate"></i> Student Details</a>
+  <a href="d_faculty.html" class="side-btn"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a>
+  <a href="d_timetable.html" class="side-btn"><i class="fas fa-calendar-alt"></i> Timetable</a>
+  <a href="d_grievance.html" class="side-btn"><i class="fas fa-comment-alt"></i> Grievance</a>
+    </nav>
+        <div class="logo-container">
+            <img src="IIIT LOGO 3.svg" alt="IIIT Logo" class="logo"/>
+            <p class="footer-text">IIIT Student Management System</p>
+            <a href="https://www.iiit-bh.ac.in" class="footer-link" target="_blank">www.iiit-bh.ac.in</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="header-line">
+            <div class="header-content">
+                <h1><i class="fas fa-bullhorn"></i> Notice Board</h1>
+                <button class="post-notice-btn" id="postNoticeBtn">
+                    <i class="fas fa-plus"></i> Post Notice
+                </button>
+            </div>
+            <hr />
+        </div>
+
+        <div class="notice-section">
+            <div class="notice-list" id="noticeList">
+                <!-- Notice items will be added here dynamically -->
+            </div>
+            <p id="noNoticeMessage">No notices found.</p>
+        </div>
+    </main>
+</div>
+
+<div class="popup-overlay" id="noticePopupOverlay"></div>
+<div class="notice-popup" id="noticePopup">
+    <div class="popup-header">
+        <h3>Post a Notice</h3>
+        <button id="closeNoticePopupBtn" class="close-btn">Close</button>
+    </div>
+    <form class="notice-form" id="noticeForm">
+        <label for="noticeTitle">Title</label>
+        <input type="text" id="noticeTitle" required>
+        <label for="noticeContent">Content</label>
+        <textarea id="noticeContent" required></textarea>
+        <label for="attention">Attention</label>
+        <select id="attention" name="attention" required>
+            <option value="">Select Audience</option>
+            <option value="All Staffs">All Staffs</option>
+            <option value="All Students">All Students</option>
+            <option value="All Faculty">All Faculty</option>
+            <option value="B.Tech CSE">B.Tech CSE</option>
+            <option value="B.Tech IT">B.Tech IT</option>
+            <option value="B.Tech CE">B.Tech CE</option>
+            <option value="B.Tech EEE">B.Tech EEE</option>
+            <option value="B.Tech ETC">B.Tech ETC</option>
+            <option value="M.Tech CSE">M.Tech CSE</option>
+            <option value="PhD CSE">PhD CSE</option>
+
+        </select>
+        <label for="document">Attach Document (optional)</label>
+        <input type="file" id="document" name="document" />
+        <button type="submit" class="post-btn"><i class="fas fa-bullhorn"></i> Post Notice</button>
+    </form>
+</div>
+
+<div class="notice-details-popup" id="noticeDetailsPopup">
+    <div class="popup-header">
+        <h3 id="noticePopupTitle">Notice Details</h3>
+        <button id="closeNoticeDetailsBtn" class="close-btn-red">Close</button>
+    </div>
+    <div class="notice-info-grid">
+        <div class="info-row">
+            <span class="label">Notice ID</span>
+            <span class="value" id="noticePopupID"></span>
+        </div>
+        <div class="info-row">
+            <span class="label">Date & Time</span>
+            <span class="value" id="noticePopupDateTime"></span>
+        </div>
+        <div class="info-row">
+            <span class="label">Attention</span>
+            <span class="value" id="noticePopupAttention"></span>
+        </div>
+        <div class="info-row full-width">
+            <span class="label">Title</span>
+            <span class="value" id="noticePopupTitleField"></span>
+        </div>
+        <div class="info-row full-width">
+            <span class="label">Content</span>
+            <span class="value" id="noticePopupContent"></span>
+        </div>
+        <div class="info-row full-width" id="noticeDocumentRow">
+            <span class="label">Attached Document</span>
+            <span class="value" id="noticePopupDocument"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const currentUserRole = "Director"; // "admin", "faculty", "student"
+    let noticeList = [];
+
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+
+    menuToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (e) => {
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove("show");
+            }
+        }
+    });
+
+    async function fetchNotices() {
+        try {
+            const response = await fetch("https://13.201.146.238/notices/getAll");
+            const data = await response.json();
+            noticeList = data.reverse(); // Assuming newest first
+            renderNotices();
+        } catch (error) {
+            console.error("Error fetching notices:", error);
+        }
+    }
+
+    function renderNotices() {
+        const listEl = document.getElementById("noticeList");
+        const noMsg = document.getElementById("noNoticeMessage");
+        listEl.innerHTML = "";
+
+        if (noticeList.length === 0) {
+            noMsg.style.display = "block";
+        } else {
+            noMsg.style.display = "none";
+            noticeList.forEach(notice => {
+                const div = document.createElement("div");
+                div.className = "notice-item";
+
+                div.innerHTML = `
+                    <div class="notice-content">
+                        <div class="notice-title">${notice.title}</div>
+                        <div class="notice-meta">
+                            <span><i class="fas fa-user"></i> By: ${notice.postedBy}</span>
+                        </div>
+                    </div>
+                `;
+
+                div.onclick = () => showNoticeDetails(notice);
+                listEl.appendChild(div);
+            });
+        }
+    }
+
+    function showNoticeDetails(notice) {
+        document.getElementById("noticePopupID").innerText = notice.noticeId || "-";
+        document.getElementById("noticePopupTitleField").innerText = notice.title;
+        document.getElementById("noticePopupDateTime").innerText = notice.postedOn;
+        document.getElementById("noticePopupAttention").innerText = notice.attention;
+        document.getElementById("noticePopupContent").innerText = notice.content;
+
+        const documentRow = document.getElementById("noticeDocumentRow");
+        const docEl = document.getElementById("noticePopupDocument");
+
+        if (notice.attachment) {
+            documentRow.style.display = "grid";
+            docEl.innerHTML = `<a href="${notice.attachment}" target="_blank">View Document</a>`;
+        } else {
+            documentRow.style.display = "none";
+            docEl.innerHTML = "";
+        }
+
+        document.getElementById("noticeDetailsPopup").style.display = "flex";
+        document.getElementById("noticePopupOverlay").style.display = "block";
+    }
+
+    function openNoticePopup() {
+        document.getElementById("noticePopupOverlay").style.display = "block";
+        document.getElementById("noticePopup").style.display = "flex";
+    }
+
+    function closeNoticePopup() {
+        document.getElementById("noticePopupOverlay").style.display = "none";
+        document.getElementById("noticePopup").style.display = "none";
+
+        const form = document.getElementById("noticeForm");
+        form.reset();
+        delete form.dataset.editing;
+        form.querySelector('button[type="submit"]').textContent = "Post Notice";
+    }
+
+    document.getElementById("postNoticeBtn").addEventListener("click", () => {
+        const form = document.getElementById("noticeForm");
+        form.reset();
+        delete form.dataset.editing;
+        form.querySelector('button[type="submit"]').textContent = "Post Notice";
+        openNoticePopup();
+    });
+
+    document.getElementById("noticeForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const form = event.target;
+
+    const notice = {
+        attention: form.attention.value,
+        title: form.noticeTitle.value,
+        content: form.noticeContent.value,
+        postedBy: currentUserRole
+    };
+
+    const formData = new FormData();
+    formData.append("notice", new Blob([JSON.stringify(notice)], { type: "application/json" }));
+
+    const documentFile = form.document.files[0];
+    if (documentFile) {
+        formData.append("file", documentFile);
+    }
+
+    try {
+        const response = await fetch("https://13.201.146.238/notices/create", {
+            method: "POST",
+            body: formData
+        });
+
+        if (response.ok) {
+            alert("Notice posted successfully!");
+            form.reset();
+            await fetchNotices();
+            closeNoticePopup();
+        } else {
+            const errorText = await response.text();
+            alert("Failed to post notice: " + errorText);
+        }
+    } catch (error) {
+        console.error("Error posting notice:", error);
+        alert("An error occurred: " + error.message);
+    }
+});
+
+
+    document.getElementById("closeNoticeDetailsBtn").addEventListener("click", () => {
+        document.getElementById("noticeDetailsPopup").style.display = "none";
+        document.getElementById("noticePopupOverlay").style.display = "none";
+    });
+
+    document.getElementById("closeNoticePopupBtn").addEventListener("click", closeNoticePopup);
+
+    // Initial load
+    fetchNotices();
+</script>
+
+
+</body>
+</html>

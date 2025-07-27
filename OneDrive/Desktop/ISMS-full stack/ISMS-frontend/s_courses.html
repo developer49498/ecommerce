@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="s_courses.css">
+</head>
+<body>
+    <div class="top-bar">
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="portal-title">
+            <img src="IIIT%20LOGO%203.svg" alt="IIIT Logo" class="logo">
+            <span>Student Portal</span>
+        </div>
+        <div class="top-buttons">
+            <a href="login.html" class="top-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <ul class="nav-links">
+                <li><a href="s_faculty.html"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a></li>
+                <li><a href="s_student.html"><i class="fas fa-user-graduate"></i> Student Details</a></li>
+                <li><a href="s_notice.html"><i class="fas fa-bullhorn"></i> Notice Board</a></li>
+                <li><a href="s_timetable.html"><i class="fas fa-clock"></i> Timetable</a></li>
+                <li><a href="s_grievance.html"><i class="fas fa-comment-alt"></i> Grievance</a></li>
+                <li><a href="s_courses.html"><i class="fas fa-book"></i> Classes</a></li>
+                <li><a href="s_grade.html"><i class="fas fa-chart-bar"></i> Grades</a></li>
+                <li><a href="s_library.html"><i class="fas fa-book-open"></i> Books</a></li>
+                <li><a href="s_outstanding.html"><i class="fas fa-money-bill-wave"></i> Outstanding</a></li>
+                <li><a href="s_fee.html"><i class="fas fa-file-invoice-dollar"></i> Fee Ledger</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+        <div class="headline-slab">
+            <h1><i class="fas fa-book"></i> My Courses</h1>
+            <hr />
+        </div>
+
+        <!-- Semester Selection -->
+        <div class="semester-section">
+            <div class="search-container">
+                <select id="semesterSelect">
+                    <option value="" disabled selected>Select Semester</option>
+                    <option value="sem1">Semester 1</option>
+                    <option value="sem2">Semester 2</option>
+                    <option value="sem3">Semester 3</option>
+                    <option value="sem4">Semester 4</option>
+                    <option value="sem5">Semester 5</option>
+                    <option value="sem6">Semester 6</option>
+                    <option value="sem7">Semester 7</option>
+                    <option value="sem8">Semester 8</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Course List -->
+        <div class="course-section" id="courseSection" style="display: none;">
+            <div class="table-container">
+                <table class="course-table">
+                    <thead>
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Course Name</th>
+                            <th>Credits</th>
+                            <th>Professor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="courseList"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Attendance Popup -->
+        <div class="popup-overlay" id="attendancePopupOverlay">
+            <div class="attendance-popup">
+                <h3 id="courseTitle"></h3>
+                <div class="attendance-circle" id="attendanceCircle"></div>
+                <div class="attendance-stats">
+                    <div class="stat-item"><span>Total Classes:</span><span id="totalClasses"></span></div>
+                    <div class="stat-item"><span>Present:</span><span id="presentClasses"></span></div>
+                    <div class="stat-item"><span>Absent:</span><span id="absentClasses"></span></div>
+                </div>
+                <div class="attendance-date-section">
+                    <h4>Check Attendance by Date</h4>
+                    <input type="date" id="attendanceDateInput" />
+                    <div class="attendance-date-list" id="attendanceDateList"></div>
+                </div>
+                <div class="announcement-section">
+                    <h4>Course Announcements</h4>
+                    <div class="announcement-history" id="courseAnnouncements"></div>
+                </div>
+                <button class="close-btn" onclick="closeAttendancePopup()">Close</button>
+            </div>
+        </div>
+    </main>
+
+<script>
+    const semesterSelect = document.getElementById('semesterSelect');
+    const courseSection = document.getElementById('courseSection');
+    const courseList = document.getElementById('courseList');
+
+    semesterSelect.addEventListener('change', () => {
+        const semester = semesterSelect.value;
+        const email = localStorage.getItem('email');
+
+        if (semester && email) {
+            fetchCourses(email, semester);
+        } else {
+            courseSection.style.display = 'none';
+            courseList.innerHTML = '';
+        }
+    });
+
+    function fetchCourses(email, semester) {
+        const url = `https://13.201.146.238/student-mapper/courses/details?email=${encodeURIComponent(email)}&semester=${encodeURIComponent(semester)}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not OK');
+                return response.json();
+            })
+            .then(courses => {
+                if (courses && courses.length > 0) {
+                    courseSection.style.display = 'block';
+                    populateCourses(courses, semester);
+                } else {
+                    courseSection.style.display = 'none';
+                    courseList.innerHTML = '';
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                courseSection.style.display = 'none';
+                courseList.innerHTML = '';
+            });
+    }
+
+    function populateCourses(courses, semester) {
+        courseList.innerHTML = '';
+        courses.forEach(course => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${course.courseId}</td>
+                <td>${course.courseName}</td>
+                <td>${course.credits}</td>
+                <td>${course.facultyName || 'TBD'}</td>
+            `;
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', () => showAttendancePopup(course, semester));
+            courseList.appendChild(row);
+        });
+    }
+
+    // Attendance popup function
+    async function showAttendancePopup(course, semester) {
+        const email = localStorage.getItem("email");
+        const studentId = email.split("@")[0];
+        const courseId = course.courseId;
+
+        // Fetch attendance summary
+        try {
+            const summaryRes = await fetch(`https://13.201.146.238/attendance/attendance/summary?studentId=${studentId}&courseId=${courseId}`);
+            const summary = await summaryRes.json();
+            attendanceCircle.textContent = `${summary.attendancePercentage}%`;
+            attendanceCircle.style.backgroundColor = summary.attendancePercentage >= 75 ? '#28a745' : '#dc3545';
+            totalClasses.textContent = summary.totalClasses;
+            presentClasses.textContent = summary.presentClasses;
+            absentClasses.textContent = summary.absentClasses;
+        } catch (err) {
+            console.error("Failed to fetch attendance summary", err);
+        }
+
+        // Set course name
+        courseTitle.textContent = course.courseName;
+
+        // Fetch announcements
+        try {
+            const annRes = await fetch(`https://13.201.146.238/announcement/get?semester=${semester}&courseId=${courseId}`);
+            const announcements = await annRes.json();
+            courseAnnouncements.innerHTML = '';
+
+            if (!announcements.length) {
+                courseAnnouncements.innerHTML = `<div class="announcement-item"><p>No announcements for this course.</p></div>`;
+            } else {
+                announcements.forEach(announcement => {
+                    const item = document.createElement('div');
+                    item.classList.add('announcement-item');
+                    item.innerHTML = `
+                        <p><strong>${announcement.announcement_content}</strong></p>
+                        <p><small>${announcement.posted_by}</small> | ${announcement.posted_on}</p>
+                        ${announcement.attachment ? `<a href="${announcement.attachment}" target="_blank">Attachment</a>` : ''}
+                    `;
+                    courseAnnouncements.appendChild(item);
+                });
+            }
+        } catch (err) {
+            console.error("Failed to fetch announcements", err);
+        }
+
+        // Set up date picker
+        attendanceDateInput.value = '';
+        attendanceDateList.innerHTML = '';
+        attendanceDateInput.onchange = async () => {
+            const selectedDate = attendanceDateInput.value;
+            try {
+                const statusRes = await fetch(`https://13.201.146.238/attendance/attendance/status?studentId=${studentId}&courseId=${courseId}&date=${selectedDate}`);
+                const statusData = await statusRes.json();
+                const status = statusData.present ? "Present" : "Absent";
+
+                attendanceDateList.innerHTML = `
+                    <div class="attendance-date-item">
+                        <span>${selectedDate}</span>
+                        <span class="status ${status.toLowerCase()}">${status}</span>
+                    </div>
+                `;
+            } catch (err) {
+                attendanceDateList.innerHTML = `<div class="attendance-date-item"><span>No record for ${selectedDate}</span></div>`;
+            }
+        };
+
+        popupOverlay.style.display = 'block';
+        attendancePopup.style.display = 'flex';
+    }
+
+    function closeAttendancePopup() {
+        popupOverlay.style.display = 'none';
+        attendancePopup.style.display = 'none';
+    }
+
+    // Attendance popup references
+    const popupOverlay = document.getElementById('attendancePopupOverlay');
+    const attendancePopup = document.querySelector('.attendance-popup');
+    const courseTitle = document.getElementById('courseTitle');
+    const attendanceCircle = document.getElementById('attendanceCircle');
+    const totalClasses = document.getElementById('totalClasses');
+    const presentClasses = document.getElementById('presentClasses');
+    const absentClasses = document.getElementById('absentClasses');
+    const attendanceDateInput = document.getElementById('attendanceDateInput');
+    const attendanceDateList = document.getElementById('attendanceDateList');
+    const courseAnnouncements = document.getElementById('courseAnnouncements');
+
+    // Navbar toggle
+    document.querySelector('.menu-toggle').addEventListener('click', () => {
+        document.querySelector('.navbar').classList.toggle('active');
+        document.body.classList.toggle('menu-open');
+    });
+</script>
+
+</body>
+</html>

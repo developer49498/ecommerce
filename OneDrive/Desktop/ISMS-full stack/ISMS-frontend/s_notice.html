@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="s_notice.css">
+</head>
+<body>
+    <div class="top-bar">
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="portal-title">
+            <img src="IIIT%20LOGO%203.svg" alt="IIIT Logo" class="logo">
+            <span>Student Portal</span>
+        </div>
+        <div class="top-buttons">
+            <a href="index.html" class="top-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <ul class="nav-links">
+                <li><a href="s_faculty.html"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a></li>
+                <li><a href="s_student.html"><i class="fas fa-user-graduate"></i> Student Details</a></li>
+                <li><a href="s_notice.html"><i class="fas fa-bullhorn"></i> Notice Board</a></li>
+                <li><a href="s_timetable.html"><i class="fas fa-clock"></i> Timetable</a></li>
+                <li><a href="s_grievance.html"><i class="fas fa-comment-alt"></i> Grievance</a></li>
+                <li><a href="s_courses.html"><i class="fas fa-book"></i> Classes</a></li>
+                <li><a href="s_grade.html"><i class="fas fa-chart-bar"></i> Grades</a></li>
+                <li><a href="s_library.html"><i class="fas fa-book-open"></i> Books</a></li>
+                <li><a href="s_outstanding.html"><i class="fas fa-money-bill-wave"></i> Outstanding</a></li>
+                <li><a href="s_fee.html"><i class="fas fa-file-invoice-dollar"></i> Fee Ledger</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+        <div class="header-line">
+            <div class="header-content">
+                <h1><i class="fas fa-bullhorn"></i> Notice Board</h1>
+            </div>
+            <hr />
+        </div>
+        <div class="notice-section">
+            <div class="notice-list" id="noticeList">
+                <!-- Notice items will be added here dynamically -->
+            </div>
+            <p id="noNoticeMessage">No notices found.</p>
+        </div>
+    </main>
+
+    <div class="popup-overlay" id="noticePopupOverlay"></div>
+
+    <div class="notice-details-popup" id="noticeDetailsPopup">
+        <div class="popup-header">
+            <h3 id="noticePopupHeaderTitle">Notice Details</h3>
+            <button id="closeNoticeDetailsBtn" class="close-btn-red">Close</button>
+        </div>
+        <div class="notice-info-grid">
+            <div class="info-row">
+                <span class="label">Notice ID</span>
+                <span class="value" id="noticePopupID"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Date & Time</span>
+                <span class="value" id="noticePopupDateTime"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Attention</span>
+                <span class="value" id="noticePopupAttention"></span>
+            </div>
+            <div class="info-row full-width">
+                <span class="label">Title</span>
+                <span class="value" id="noticePopupTitle"></span>
+            </div>
+            <div class="info-row full-width">
+                <span class="label">Content</span>
+                <span class="value" id="noticePopupContent"></span>
+            </div>
+            <div class="info-row full-width" id="noticeDocumentRow">
+    <span class="label">Attached Document</span>
+    <a class="value" id="noticePopupDocument" href="#" target="_blank" style="color: blue; text-decoration: underline;"></a>
+</div>
+
+        </div>
+    </div>
+
+ <script>
+    let noticeList = [];
+
+    // Fetch and render notices on page load
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchNotices();
+    });
+
+    async function fetchNotices() {
+        try {
+            const response = await fetch("https://13.201.146.238/notices/getAll");
+            if (!response.ok) throw new Error("Failed to fetch notices");
+            const data = await response.json();
+            noticeList = data;
+            renderNotices();
+        } catch (error) {
+            console.error("Error fetching notices:", error);
+            const noMsg = document.getElementById("noNoticeMessage");
+            noMsg.style.display = "block";
+            noMsg.innerText = "Failed to load notices.";
+        }
+    }
+
+function renderNotices() {
+    const listEl = document.getElementById("noticeList");
+    const noMsg = document.getElementById("noNoticeMessage");
+    listEl.innerHTML = "";
+
+    if (noticeList.length === 0) {
+        noMsg.style.display = "block";
+    } else {
+        noMsg.style.display = "none";
+        noticeList.forEach(notice => {
+            const div = document.createElement("div");
+            div.className = "notice-item";
+            div.innerHTML = `
+                <div class="notice-content" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="notice-title">${notice.title}</div>
+                        <div class="notice-meta">
+                            <span><i class="fas fa-user"></i> By: ${notice.postedBy || "Unknown"}</span>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.9em; color: #666; white-space: nowrap;">
+                        ${notice.postedOn || ""}
+                    </div>
+                </div>
+            `;
+            div.onclick = () => showNoticeDetails(notice);
+            listEl.appendChild(div);
+        });
+    }
+}
+
+
+
+
+    function showNoticeDetails(notice) {
+        document.getElementById("noticePopupID").innerText = notice.noticeId || "-";
+        document.getElementById("noticePopupTitle").innerText = notice.title;
+        document.getElementById("noticePopupDateTime").innerText = notice.postedOn;
+        document.getElementById("noticePopupAttention").innerText = notice.attention;
+        document.getElementById("noticePopupContent").innerText = notice.content;
+
+        document.getElementById("noticePopupTitle").innerText = notice.title;
+
+        const documentRow = document.getElementById("noticeDocumentRow");
+        const docEl = document.getElementById("noticePopupDocument");
+
+        if (notice.attachment) {
+            documentRow.style.display = "grid";
+            docEl.innerHTML = `<a href="${notice.attachment}" target="_blank" style="color: blue; text-decoration: underline;">View Document</a>`;
+        } else {
+            documentRow.style.display = "none";
+            docEl.innerHTML = "";
+        }
+
+        document.getElementById("noticeDetailsPopup").style.display = "flex";
+        document.getElementById("noticePopupOverlay").style.display = "block";
+    }
+
+    function closeNoticeDetailsPopup() {
+        document.getElementById("noticeDetailsPopup").style.display = "none";
+        document.getElementById("noticePopupOverlay").style.display = "none";
+    }
+
+    // Bind close button event listener
+    const closeBtn = document.getElementById("closeNoticeDetailsBtn");
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            console.log("Close button clicked"); // Debug log
+            closeNoticeDetailsPopup();
+        });
+    } else {
+        console.error("Close button not found in DOM"); // Debug log
+    }
+
+    // Mobile menu toggle functionality
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navbar = document.querySelector('.navbar');
+    const body = document.body;
+
+    menuToggle.addEventListener('click', () => {
+        navbar.classList.toggle('active');
+        body.classList.toggle('menu-open');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.navbar') && !e.target.closest('.menu-toggle')) {
+            navbar.classList.remove('active');
+            body.classList.remove('menu-open');
+        }
+    });
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            navbar.classList.remove('active');
+            body.classList.remove('menu-open');
+        });
+    });
+</script>
+
+</body>
+</html>

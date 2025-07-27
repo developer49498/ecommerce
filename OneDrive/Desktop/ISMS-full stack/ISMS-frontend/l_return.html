@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+    <link rel="stylesheet" href="l_return.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<header class="mobile-header">
+    <button id="menuToggle"><i class="fas fa-bars"></i></button>
+    <h2>Book Return</h2>
+</header>
+
+<div class="container">
+    <aside class="sidebar" id="sidebar">
+        <a href="l_home.html" class="back-btn-sidebar">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+        </a>
+        <a href="l_notice.html" class="side-btn"><i class="fas fa-bullhorn"></i> Notice Board</a>
+
+<a href="l_issue.html" class="side-btn"><i class="fas fa-book"></i> Book Issue</a>
+<a href="l_return.html" class="side-btn"><i class="fas fa-book-reader"></i> Book Return</a>
+<a href="l_details.html" class="side-btn"><i class="fas fa-book-open"></i> Book Details</a>
+<a href="l_add.html" class="side-btn"><i class="fas fa-book-medical"></i> Add New Book</a>
+<a href="l_timetable.html" class="side-btn"><i class="fas fa-calendar-alt"></i> Timetable</a>
+
+        <div class="logo-container">
+            <img src="IIIT LOGO 3.svg" alt="IIIT Logo" class="logo"/>
+            <p class="footer-text">IIIT Student Management System</p>
+            <a href="https://www.iiit-bh.ac.in" class="footer-link" target="_blank">www.iiit-bh.ac.in</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="header-line">
+            <h1><i class="fas fa-book-reader"></i> Book Return</h1>
+            <hr />
+        </div>
+
+        <div class="return-book-form">
+            <h2><i class="fas fa-book-return"></i> Return Book</h2>
+            <form id="returnForm">
+                <label for="studentId"><i class="fas fa-user-graduate"></i> Student ID</label>
+                <input type="text" id="studentId" name="studentId" placeholder="Enter Student ID" required />
+
+                <label for="bookId"><i class="fas fa-barcode"></i> Book Unique ID</label>
+                <input type="text" id="bookId" name="bookId" placeholder="Enter Book Unique ID" required />
+
+                <button type="submit"><i class="fas fa-check-circle"></i> Submit Return</button>
+            </form>
+            <p id="successMsg" class="success-msg" style="display:none;">
+                <i class="fas fa-check-circle"></i> Book return recorded successfully!
+            </p>
+        </div>
+    </main>
+</div>
+
+<script>
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+
+    menuToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (e) => {
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove("show");
+            }
+        }
+    });
+
+
+
+
+    document.getElementById("returnForm").addEventListener("submit", async function (e) {
+    e.preventDefault(); // Prevent page reload
+
+    const studentId = document.getElementById("studentId").value.trim();
+    const bookId = document.getElementById("bookId").value.trim();
+
+    if (!studentId || !bookId) {
+        alert("Please fill in both fields.");
+        return;
+    }
+
+    const url = `https://13.201.146.238/books/return?studentId=${encodeURIComponent(studentId)}&bookId=${encodeURIComponent(bookId)}`;
+
+    try {
+        const response = await fetch(url, {
+            method: "POST"
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.text(); // or .json() if server returns JSON
+
+        alert("✅ Book returned successfully!\n" + result);
+
+        // Optionally, reset form:
+        document.getElementById("returnForm").reset();
+
+    } catch (error) {
+        console.error("❌ Error during book return:", error);
+        alert("❌ Failed to return book:\n" + error.message);
+    }
+});
+</script>
+
+</body>
+</html>

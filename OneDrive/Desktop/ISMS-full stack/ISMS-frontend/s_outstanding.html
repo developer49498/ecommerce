@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="s_outstanding.css">
+</head>
+<body>
+    <div class="top-bar">
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="portal-title">
+            <img src="IIIT%20LOGO%203.svg" alt="IIIT Logo" class="logo">
+            <span>Student Portal</span>
+        </div>
+        <div class="top-buttons">
+            <a href="login.html" class="top-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <ul class="nav-links">
+                <li><a href="s_faculty.html"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a></li>
+                <li><a href="s_student.html"><i class="fas fa-user-graduate"></i> Student Details</a></li>
+                <li><a href="s_notice.html"><i class="fas fa-bullhorn"></i> Notice Board</a></li>
+                <li><a href="s_timetable.html"><i class="fas fa-clock"></i> Timetable</a></li>
+                <li><a href="s_grievance.html"><i class="fas fa-comment-alt"></i> Grievance</a></li>
+                <li><a href="s_courses.html"><i class="fas fa-book"></i> Classes</a></li>
+                <li><a href="s_grade.html"><i class="fas fa-chart-bar"></i> Grades</a></li>
+                <li><a href="s_library.html"><i class="fas fa-book-open"></i> Books</a></li>
+                <li><a href="s_outstanding.html"><i class="fas fa-money-bill-wave"></i> Outstanding</a></li>
+                <li><a href="s_fee.html"><i class="fas fa-file-invoice-dollar"></i> Fee Ledger</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+        <div class="headline-slab">
+            <h1><i class="fas fa-money-bill-wave"></i> Outstanding Amount</h1>
+            <hr />
+        </div>
+        <div class="outstanding-container">
+           
+            
+            <!-- Student Info Section -->
+            <div class="student-info">
+                <h3>Student Information</h3>
+                <p><strong>Name:</strong> <span id="student-name"></span></p>
+                <p><strong>Student ID:</strong> <span id="student-id-display"></span></p>
+                <p><strong>Program:</strong> <span id="student-program"></span></p>
+                <p><strong>Branch:</strong> <span id="student-branch"></span></p>
+            </div>
+            
+            <!-- Outstanding Amount Section -->
+            <div class="outstanding-section">
+                <div class="outstanding-amount">
+                    <p>Outstanding Amount</p>
+                    <h2 id="outstanding-amount"></h2>
+                </div>
+                <a href="https://www.onlinesbi.sbi/sbicollect/" target="_blank" class="pay-now-btn">Pay Now</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const studentInfo = document.querySelector(".student-info");
+        const outstandingAmountDisplay = document.getElementById("outstanding-amount");
+window.onload = function() {
+    updateOutstandingAmount();
+}
+
+    
+
+        // Initialize with student B001 data on page load
+             async function initializeStudentData() {
+    try {
+        const email = localStorage.getItem("email");
+        if (!email) {
+            throw new Error("No email found in local storage");
+        }
+
+        // Extract studentId from email (before '@')
+        const studentId = email.split("@")[0].toLowerCase(); // e.g., b123001
+
+        // Parse components
+        const programmeChar = studentId.charAt(0);
+        const branchCode = parseInt(studentId.charAt(1));
+        const batchYear = 2000 + parseInt(studentId.substring(2, 4));
+
+        // Map programme
+        const programme = {
+            'b': "b-tech",
+            'a': "m-tech",
+            'c': "ph.d"
+        }[programmeChar];
+
+        // Map branch
+        const branchMap = {
+            1: "CSE",
+            2: "ETC",
+            3: "EEE",
+            4: "IT",
+            5: "CE"
+        };
+        const branch = branchMap[branchCode];
+
+        if (!programme || !branch || isNaN(batchYear)) {
+            throw new Error("Failed to parse student ID: " + studentId);
+        }
+
+        // Construct API URL
+        const apiUrl = `https://13.201.146.238/api/students/searchById/${branch}/${programme}/${batchYear}/${studentId}`;
+
+        // Fetch student data
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error("Failed to fetch student data");
+        }
+        const student = await response.json();
+
+        // Populate UI
+        document.getElementById("student-name").textContent = student.name;
+        document.getElementById("student-id-display").textContent = studentId;
+        document.getElementById("student-program").textContent = programme.toUpperCase();
+        document.getElementById("student-branch").textContent = branch;
+
+        
+
+    } catch (error) {
+        console.error("Initialization error:", error);
+        alert("Failed to load student info. Check console for details.");
+    }
+}
+
+
+
+async function updateOutstandingAmount() {
+    try {
+        const email = localStorage.getItem("email");
+        if (!email) throw new Error("Email not found in localStorage");
+
+        // Extract studentId from email prefix
+        const studentId = email.split("@")[0].toLowerCase();
+
+        // Call API
+        const url = `https://13.201.146.238/api/student-fee/outstanding?studentId=${studentId}`;
+        const response = await fetch(url);
+
+        if (!response.ok) throw new Error("Failed to fetch outstanding amount");
+
+        const data = await response.json();
+
+        // Update the outstanding amount in the DOM
+        const outstandingElem = document.getElementById("outstanding-amount");
+        outstandingElem.textContent = `₹${data.outstandingAmount.toLocaleString('en-IN')}`;
+
+    } catch (error) {
+        console.error("Error fetching outstanding amount:", error);
+        // Optionally show some error message or default value
+        document.getElementById("outstanding-amount").textContent = "₹0";
+    }
+}
+
+
+
+        // Toggle navbar for mobile
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navbar = document.querySelector('.navbar');
+        menuToggle.addEventListener('click', () => {
+            navbar.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', initializeStudentData);
+    </script>
+</body>
+</html>

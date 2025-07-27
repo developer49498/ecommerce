@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="s_home.css">
+    <meta name="description" content="Student Dashboard - Access your academic information and resources">
+    <meta name="theme-color" content="#4361ee">
+</head>
+<body>
+    <div class="header">
+        <div class="header-actions">
+            <div class="logout">
+                <div class="logout-circle">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <span>Logout</span>
+            </div>
+        </div>
+        <div class="welcome">Welcome back</div>
+        <div class="logo" title="IIIT">
+            <img src="IIIT%20LOGO%203.svg" alt="IIIT Logo" class="institute-logo">
+        </div>
+    </div>
+    <div class="dashboard">
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <img class="profile-avatar" src="" alt="Profile Avatar">
+
+                <div class="profile-info">
+                    <h1 class="profile-name">B423025</h1>
+                    <div class="profile-degree">B.Tech</div>
+                    <div class="profile-id">Computer Science & Engineering</div>
+                </div>
+                <div class="profile-actions">
+  <a href="s_password.html" title="Change Password">
+    <div class="change-password-sm">
+      <img src="password.svg" alt="Change Password" class="icon">
+    </div>
+  </a>
+</div>
+
+            </div>
+        </div>
+
+        <a href="s_faculty.html">
+  <div class="card">
+    <i class="fas fa-users"></i>
+    <span>Faculty Details</span>
+  </div>
+</a>
+
+<a href="s_notice.html">
+  <div class="card">
+    <i class="fas fa-bell"></i>
+    <span>Notice board</span>
+  </div>
+</a>
+
+<a href="s_library.html">
+  <div class="card">
+    <i class="fas fa-book"></i>
+    <span>Books</span>
+  </div>
+</a>
+
+<a href="s_timetable.html">
+  <div class="card">
+    <i class="fas fa-calendar-alt"></i>
+    <span>Time Table</span>
+  </div>
+</a>
+
+<a href="s_grievance.html">
+  <div class="card">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>Grievances</span>
+  </div>
+</a>
+
+<a href="s_courses.html">
+  <div class="card">
+    <i class="fas fa-chalkboard-teacher"></i>
+    <span>Classes</span>
+  </div>
+</a>
+
+<a href="s_grade.html">
+  <div class="card">
+    <i class="fas fa-graduation-cap"></i>
+    <span>View Grade</span>
+  </div>
+</a>
+
+<a href="s_student.html">
+  <div class="card">
+    <i class="fas fa-user"></i>
+    <span>Student Details</span>
+  </div>
+</a>
+
+<a href="s_fee.html">
+  <div class="card">
+    <i class="fas fa-wallet"></i>
+    <span>Fee Ledger</span>
+  </div>
+</a>
+
+<a href="s_outstanding.html">
+  <div class="card">
+    <i class="fas fa-money-bill-wave"></i>
+    <span>Outstanding Amount</span>
+  </div>
+</a>
+
+
+    </div>
+
+    <style>
+        .highlight {
+            color: #4cc9f0;
+            font-weight: 700;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .action-btn i {
+            font-size: 0.9rem;
+        }
+    </style>
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const programmeMap = {
+        'b': 'b-tech',  // changed here
+        'a': 'm-tech',
+        'c': 'phd'
+    };
+
+    const branchMap = {
+        '1': 'CSE',
+        '2': 'ETC',
+        '3': 'EEE',
+        '4': 'IT',
+        '5': 'CE'
+    };
+
+    const email = localStorage.getItem('email');
+
+    if (email && email.endsWith('@iiit-bh.ac.in')) {
+        const studentId = email.split('@')[0]; // b123001
+        const progCode = studentId[0];         // b
+        const branchCode = studentId[1];       // 1
+        const yearCode = studentId.slice(2, 4); // 23
+        const year = parseInt('20' + yearCode); // 2023
+
+        const programme = programmeMap[progCode] || 'unknown-programme';
+        const branch = branchMap[branchCode] || 'UNKNOWN';
+
+        // Update profile UI
+        document.querySelector('.profile-name').textContent = studentId.toUpperCase();
+        document.querySelector('.profile-degree').textContent = programme.replace('-', ' ').toUpperCase();
+        document.querySelector('.profile-id').textContent = branch;
+
+        // Construct image URL exactly as requested
+        const fileName = `${studentId.toLowerCase()}.jpg`;
+        const apiUrl = `https://13.201.146.238/api/github/link/${programme}/${branch}/${year}/${studentId}.jpg`;
+
+fetch(apiUrl)
+  .then(response => response.text())  // plain text response, not JSON
+  .then(imageUrl => {
+    console.log("Image URL from backend:", imageUrl);
+    // Now set the image src to this URL
+    document.querySelector('.profile-avatar').src = imageUrl.trim();
+  })
+  .catch(err => {
+    console.error("Error fetching image URL:", err);
+    // Optionally, set a default avatar here
+    document.querySelector('.profile-avatar').src = 'default-avatar.jpg';
+  });
+
+    } else {
+        alert("Invalid or missing student email.");
+        window.location.href = "login.html";
+    }
+});
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const baseUrl = "https://13.201.146.238";
+    const uid = localStorage.getItem("uid");
+
+    // Optional redirect if uid not found
+    if (!uid) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    // 🔒 Logout logic
+    document.querySelector(".logout").addEventListener("click", async function () {
+      try {
+        const response = await fetch(`${baseUrl}/api/auth/logout?uid=${encodeURIComponent(uid)}`, {
+          method: "POST"
+        });
+
+        if (response.ok) {
+          localStorage.clear();               // Clear all session data
+          window.location.href = "index.html"; // Redirect to landing page
+        } else {
+          const errorText = await response.text();
+          alert("Logout failed: " + errorText);
+        }
+      } catch (error) {
+        alert("Error connecting to server: " + error.message);
+      }
+    });
+  });
+
+</script>
+</body>
+</html>

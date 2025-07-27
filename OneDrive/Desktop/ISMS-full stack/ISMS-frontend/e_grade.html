@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+  <link rel="stylesheet" href="e_grade.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<header class="mobile-header">
+  <button id="menuToggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+  <h2>Student Grade Details</h2>
+</header>
+
+<div class="container">
+  <aside class="sidebar" id="sidebar">
+    <a href="e_home.html" class="back-btn-sidebar">
+      <i class="fas fa-arrow-left"></i>
+      Back to Dashboard
+    </a>
+    <a href="e_notice.html" class="side-btn"><i class="fas fa-bullhorn"></i> Notice Board</a>
+<a href="e_student.html" class="side-btn"><i class="fas fa-user-graduate"></i> Student Details</a>
+<a href="e_fee.html" class="side-btn"><i class="fas fa-address-book"></i> Student FeeLedger</a>
+<a href="e_supdate.html" class="side-btn"><i class="fas fa-upload"></i> Student Update</a>
+<a href="e_faculty.html" class="side-btn"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a>
+<a href="e_fupdate.html" class="side-btn"><i class="fas fa-user-edit"></i> Faculty Update</a>
+<a href="e_ginput.html" class="side-btn"><i class="fas fa-clipboard-check"></i> Grade Input</a>
+<a href="e_grade.html" class="side-btn"><i class="fas fa-graduation-cap"></i> Student Grade Details</a>
+<a href="e_timetable.html" class="side-btn active"><i class="fas fa-calendar-alt"></i> Timetable</a>
+
+    
+    
+    <div class="logo-container">
+      <img src="IIIT LOGO 3.svg" alt="IIIT Logo" class="logo"/>
+      <p class="footer-text">IIIT Student Management System</p>
+      <a href="https://www.iiit-bh.ac.in" class="footer-link" target="_blank">www.iiit-bh.ac.in</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="header-line">
+      <h1><i class="fas fa-graduation-cap"></i> Student Grade Details</h1>
+      <hr />
+      <div class="grade-details-container">
+        <h2>Student Grade Details</h2>
+        
+        <!-- Student Search Section -->
+        <div class="search-section">
+          <div class="form-group">
+            <label for="student-id"></label>
+            <input type="text" id="student-id" placeholder="Enter Student ID" />
+          </div>
+          <button class="submit-btn search-btn">Search</button>
+        </div>
+        
+        <!-- Student Info Section (Hidden until search) -->
+        <div class="student-info" style="display: none;">
+          <h3>Student Information</h3>
+          <p><strong>Name:</strong> <span id="student-name"></span></p>
+          <p><strong>Student ID:</strong> <span id="student-id-display"></span></p>
+          <p><strong>Program:</strong> <span id="student-program"></span></p>
+          <p><strong>Branch:</strong> <span id="student-branch"></span></p>
+        </div>
+        
+        <!-- Semester and Grade Details Section -->
+        <div class="grade-section" style="display: none;">
+          <div class="form-group semester-selector">
+            <label for="semester">Semester</label>
+            <select id="semester">
+                            <option value="">Select semester</option>
+                            <option value="sem1">Semester 1</option>
+                            <option value="sem2">Semester 2</option>
+                            <option value="sem3">Semester 3</option>
+                            <option value="sem4">Semester 4</option>
+                            <option value="sem5">Semester 5</option>
+                            <option value="sem5">Semester 5</option>
+                            <option value="sem6">Semester 6</option>
+                            <option value="sem7">Semester 7</option>
+                            <option value="sem8">Semester 8</option>
+                            <option value="all">All</option>
+                        </select>
+          </div>
+          
+          <!-- GPA Summary (Moved Above Grade Table) -->
+          <div class="gpa-summary">
+            <p><strong>SGPA:</strong> <span id="sgpa"></span></p>
+            <p><strong>CGPA:</strong> <span id="cgpa"></span></p>
+          </div>
+          
+          <!-- Grade Table -->
+          <div class="grade-table-container">
+            <table class="grade-table">
+              <thead>
+                <tr>
+                  <th>Course Code</th>
+                  <th>Course Name</th>
+                  <th>Credit</th>
+                  <th>GPA Before Penalty</th>
+                  <th>Penalty</th>
+                  <th>GPA After Penalty</th>
+                </tr>
+              </thead>
+              <tbody id="grade-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+  const searchBtn = document.querySelector(".search-btn");
+  const studentIdInput = document.getElementById("student-id");
+  const studentInfo = document.querySelector(".student-info");
+  const gradeSection = document.querySelector(".grade-section");
+  const semesterSelect = document.getElementById("semester");
+  const gradeTableBody = document.getElementById("grade-table-body");
+  const sgpaDisplay = document.getElementById("sgpa");
+  const cgpaDisplay = document.getElementById("cgpa");
+
+  // Mobile menu toggle
+  menuToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("show");
+  });
+
+  // Close sidebar when clicking outside
+  document.addEventListener("click", (e) => {
+    if (window.innerWidth <= 768) {
+      if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+        sidebar.classList.remove("show");
+      }
+    }
+  });
+
+  // Function to handle search logic (used by both button click and Enter key)
+ let currentStudentMeta = null;  // global meta variable
+
+async function performSearch() {
+    const studentId = studentIdInput.value.trim().toLowerCase();
+
+    if (!studentId) {
+        alert("Please enter a Student ID.");
+        return;
+    }
+
+    try {
+        // Parse studentId to get programme, branch, batchYear
+        const programmeChar = studentId.charAt(0);
+        const branchCode = parseInt(studentId.charAt(1));
+        const batchYear = 2000 + parseInt(studentId.substring(2, 4));
+
+        const programmeMap = { 'b': "b-tech", 'a': "m-tech", 'c': "ph.d" };
+        const branchMap = { 1: "CSE", 2: "ETC", 3: "EEE", 4: "IT", 5: "CE" };
+
+        const programme = programmeMap[programmeChar];
+        const branch = branchMap[branchCode];
+
+        if (!programme || !branch || isNaN(batchYear)) {
+            throw new Error("Invalid Student ID format.");
+        }
+
+        // Store meta globally
+        currentStudentMeta = { studentId, programme, branch, batchYear };
+
+        // Fetch student details from API
+        const apiUrl = `https://13.201.146.238/api/students/searchById/${branch}/${programme}/${batchYear}/${studentId}`;
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+            throw new Error("Student not found.");
+        }
+
+        const student = await response.json();
+
+        // Update UI with fetched student info
+        document.getElementById("student-name").textContent = student.name || "N/A";
+        document.getElementById("student-id-display").textContent = studentId;
+        document.getElementById("student-program").textContent = programme.toUpperCase();
+        document.getElementById("student-branch").textContent = branch;
+
+        studentInfo.style.display = "block";
+        gradeSection.style.display = "block";
+
+
+    } catch (error) {
+        alert(error.message || "Error fetching student details.");
+        studentInfo.style.display = "none";
+        gradeSection.style.display = "none";
+        currentStudentMeta = null;
+    }
+}
+
+  // Search button click handler
+  searchBtn.addEventListener("click", performSearch);
+
+  // Enter key press handler for the student ID input
+  studentIdInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent any default form submission
+      performSearch();
+    }
+  });
+
+  
+
+// Semester dropdown handler
+semesterSelect.addEventListener("change", (e) => {
+    const semester = e.target.value;
+
+    if (!currentStudentMeta) {
+        alert("Please perform a search first.");
+        return;
+    }
+
+    if (semester.toLowerCase() === "all") {
+        // Call the all-semesters endpoint
+        updateAllSemesterGrades(currentStudentMeta);
+    } else {
+        // Normal single semester fetch
+        updateGradeTable(semester.replace('sem', ''), currentStudentMeta);
+    }
+});
+
+
+
+async function updateAllSemesterGrades(meta) {
+    const { studentId, programme, branch, batchYear } = meta;
+    const url = `https://13.201.146.238/api/students/results/${branch}/${programme}/${batchYear}/${studentId}/all-semesters`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch all semester results");
+
+        const result = await response.json();
+        const courses = result.courses || [];
+
+        gradeTableBody.innerHTML = "";
+
+        courses.forEach(course => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${course.courseId}</td>
+                <td>${course.name || 'N/A'}</td>
+                <td>${course.credit || 0}</td>
+                <td>${course.gp_before_penalty ? course.gp_before_penalty.toFixed(2) : '0.00'}</td>
+                <td>${course.penalty ? course.penalty.toFixed(2) : '0.00'}</td>
+                <td>${course.net_gp ? course.net_gp.toFixed(2) : '0.00'}</td>
+            `;
+            gradeTableBody.appendChild(row);
+        });
+
+        // Hide SGPA display on all-semesters view
+        sgpaDisplay.parentElement.style.display = "none";
+
+        // CGPA still shown
+        cgpaDisplay.parentElement.style.display = "block";
+        cgpaDisplay.textContent = result.cgpa || "N/A";
+
+    } catch (error) {
+        console.error("Error fetching all semester grades:", error);
+        alert("Unable to fetch all semester results.");
+        gradeTableBody.innerHTML = "";
+        sgpaDisplay.textContent = "N/A";
+        cgpaDisplay.textContent = "N/A";
+
+        // Hide SGPA display on error too
+        sgpaDisplay.parentElement.style.display = "none";
+    }
+}
+
+
+    semesterSelect.addEventListener("change", (e) => {
+    const selectedValue = e.target.value;
+    if (!currentStudentMeta) {
+        alert("Please perform a search first.");
+        return;
+    }
+
+    if (selectedValue === "all") {
+        // Call function that fetches all semesters results
+        updateGradeTableAll(currentStudentMeta);
+    } else {
+        // For example, "sem1", "sem2" etc.
+        const semesterNumber = selectedValue.replace('sem', '');
+        updateGradeTable(semesterNumber, currentStudentMeta);
+    }
+});
+
+
+async function updateGradeTable(semester, meta) {
+    const { studentId, programme, branch, batchYear } = meta;
+    const semName = `sem${semester}`;
+    const url = `https://13.201.146.238/api/students/results/${branch}/${programme}/${batchYear}/${studentId}/semester/${semName}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch result data");
+
+        const result = await response.json();
+        const courses = result.courses || [];
+
+        gradeTableBody.innerHTML = "";
+
+        let semesterGradePoints = 0;
+        let semesterCredits = 0;
+
+        courses.forEach(course => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${course.courseId}</td>
+                <td>${course.name}</td>
+                <td>${course.credit}</td>
+                <td>${course.gp_before_penalty.toFixed(2)}</td>
+                <td>${course.penalty.toFixed(2)}</td>
+                <td>${course.net_gp.toFixed(2)}</td>
+            `;
+            gradeTableBody.appendChild(row);
+
+            semesterGradePoints += course.net_gp * course.credit;
+            semesterCredits += course.credit;
+        });
+
+        // SGPA from backend
+        sgpaDisplay.parentElement.style.display = "block";
+        sgpaDisplay.textContent = result.sgpa || "N/A";
+
+        // CGPA from backend
+        cgpaDisplay.parentElement.style.display = "block";
+        cgpaDisplay.textContent = result.cgpa || "N/A";
+
+    } catch (error) {
+        console.error("Error updating grade table:", error);
+        alert("Unable to fetch semester data.");
+        gradeTableBody.innerHTML = "";
+        sgpaDisplay.textContent = "N/A";
+        cgpaDisplay.textContent = "N/A";
+    }
+}
+
+
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+    <link rel="stylesheet" href="l_add.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<header class="mobile-header">
+    <button id="menuToggle"><i class="fas fa-bars"></i></button>
+    <h2>Add New Book</h2>
+</header>
+
+<div class="container">
+    <aside class="sidebar" id="sidebar">
+        <a href="l_home.html" class="back-btn-sidebar">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+        </a>
+        <a href="l_notice.html" class="side-btn"><i class="fas fa-bullhorn"></i> Notice Board</a>
+
+<a href="l_issue.html" class="side-btn"><i class="fas fa-book"></i> Book Issue</a>
+<a href="l_return.html" class="side-btn"><i class="fas fa-book-reader"></i> Book Return</a>
+<a href="l_details.html" class="side-btn"><i class="fas fa-book-open"></i> Book Details</a>
+<a href="l_add.html" class="side-btn"><i class="fas fa-book-medical"></i> Add New Book</a>
+<a href="l_timetable.html" class="side-btn"><i class="fas fa-calendar-alt"></i> Timetable</a>
+
+
+<div class="logo-container">
+            <img src="IIIT LOGO 3.svg" alt="IIIT Logo" class="logo"/>
+            <p class="footer-text">IIIT Student Management System</p>
+            <a href="https://www.iiit-bh.ac.in" class="footer-link" target="_blank">www.iiit-bh.ac.in</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="header-line">
+            <h1><i class="fas fa-file-medical"></i> Add New Book</h1>
+            <hr />
+        </div>
+
+        <div class="add-book-form">
+            <h2>Add Book Manually</h2>
+            <form id="manualBookForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bookName">Book Name</label>
+                        <input type="text" id="bookName" name="bookName" placeholder="Enter book name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookCode">Book Code</label>
+                        <input type="text" id="bookCode" name="bookCode" placeholder="Enter book code" required>
+                    </div>
+                    <div class="form-group form-group-button">
+                        <button type="submit">Add Books</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="add-book-form excel-upload-form">
+            <h2>Upload Excel File</h2>
+            <form id="excelUploadForm">
+                <div class="form-row">
+                    <div class="form-group form-group-file">
+                        <label for="excelFile">Select Excel File</label>
+                        <input type="file" id="excelFile" name="excelFile" accept=".xlsx, .xls" required>
+                    </div>
+                    <div class="form-group form-group-button">
+                        <button type="submit">Add Books</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+        </div>
+    </main>
+</div>
+
+<!-- Add this to your HTML head or body -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+    // Toggle sidebar for mobile view
+    document.getElementById('menuToggle')?.addEventListener('click', function() {
+        document.getElementById('sidebar')?.classList.toggle('show');
+    });
+
+    // Handle manual book form submission
+document.getElementById("manualBookForm").addEventListener("submit", async function(e) {
+    e.preventDefault(); // Prevent default form submission
+
+    const bookName = document.getElementById("bookName").value.trim();
+    const bookCode = document.getElementById("bookCode").value.trim();
+
+    if (!bookName || !bookCode) {
+        alert("Please fill in both Book Name and Book Code.");
+        return;
+    }
+
+    const payload = {
+        id: bookCode,
+        name: bookName
+    };
+
+    try {
+        const response = await fetch("https://13.201.146.238/books/add", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.text(); // Or .json() if your server returns JSON
+        alert("✅ Book added successfully!\n" + result);
+        this.reset(); // Clear the form
+
+    } catch (error) {
+        console.error("❌ Error adding book:", error);
+        alert("❌ Failed to add book:\n" + error.message);
+    }
+});
+
+
+    // Handle Excel file upload form submission
+document.getElementById("excelUploadForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const fileInput = document.getElementById("excelFile");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select an Excel file.");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const firstSheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[firstSheetName];
+        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        // Expecting first row to be headers: ["id", "name"]
+        const books = [];
+
+        for (let i = 1; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            const id = row[0]?.toString().trim();
+            const name = row[1]?.toString().trim();
+
+            if (id && name) {
+                books.push({ id, name });
+            }
+        }
+
+        if (books.length === 0) {
+            alert("No valid book data found in the Excel file.");
+            return;
+        }
+
+        try {
+            const response = await fetch("https://13.201.146.238/books/add-bulk", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(books)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            }
+
+            const result = await response.text(); // or .json() depending on backend
+            alert("✅ Books added successfully!\n" + result);
+            fileInput.value = ""; // Reset the file input
+        } catch (error) {
+            console.error("❌ Error uploading Excel:", error);
+            alert("❌ Failed to upload:\n" + error.message);
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+});
+   
+   </script>
+
+</body>
+</html>

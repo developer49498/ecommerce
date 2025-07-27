@@ -1,0 +1,393 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="e_ginput.css">
+</head>
+<body>
+
+<header class="mobile-header">
+  <button id="menuToggle"><i class="fas fa-bars"></i></button>
+  <h2>Grade Input</h2>
+</header>
+
+<div class="container">
+  <div class="scroll-container">
+    <aside class="sidebar" id="sidebar">
+      <a href="e_home.html" class="back-btn-sidebar">
+        <i class="fas fa-arrow-left"></i>
+        Back to Dashboard
+      </a>
+    <a href="e_notice.html" class="side-btn"><i class="fas fa-bullhorn"></i> Notice Board</a>
+<a href="e_student.html" class="side-btn"><i class="fas fa-user-graduate"></i> Student Details</a>
+<a href="e_fee.html" class="side-btn"><i class="fas fa-address-book"></i> Student FeeLedger</a>
+<a href="e_supdate.html" class="side-btn"><i class="fas fa-upload"></i> Student Update</a>
+<a href="e_faculty.html" class="side-btn"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a>
+<a href="e_fupdate.html" class="side-btn"><i class="fas fa-user-edit"></i> Faculty Update</a>
+<a href="e_ginput.html" class="side-btn"><i class="fas fa-clipboard-check"></i> Grade Input</a>
+<a href="e_grade.html" class="side-btn"><i class="fas fa-graduation-cap"></i> Student Grade Details</a>
+<a href="e_timetable.html" class="side-btn active"><i class="fas fa-calendar-alt"></i> Timetable</a>
+
+      
+      
+      <div class="logo-container">
+        <img src="IIIT LOGO 3.svg" alt="IIIT Logo" class="logo"/>
+        <p class="footer-text">IIIT Student Management System</p>
+        <a href="https://www.iiit-bh.ac.in" class="footer-link" target="_blank">www.iiit-bh.ac.in</a>
+      </div>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+      <div class="header-line">
+        <h1><i class="fas fa-clipboard-check"></i> Grade Input</h1>
+        <hr />
+      </div>
+      
+      <div class="student-update-container">
+        <div class="update-slab">
+          <h2><i class="fas fa-clipboard-check"></i> Input Student Grades</h2>
+          <form id="gradeInputForm">
+            <div class="form-group">
+              <label for="gradeProgram">Select Program:</label>
+              <select id="gradeProgram" required>
+                <option value="">-- Program --</option>
+                <option value="b-tech">BTech</option>
+                <option value="m-tech">MTech</option>
+                <option value="phd">PhD</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <select id="gradeSemester" required>
+  <option value="">-- Select Semester --</option>
+  <option value="sem1">Semester 1</option>
+  <option value="sem2">Semester 2</option>
+  <option value="sem3">Semester 3</option>
+  <option value="sem4">Semester 4</option>
+  <option value="sem5">Semester 5</option>
+  <option value="sem6">Semester 6</option>
+  <option value="sem7">Semester 7</option>
+  <option value="sem8">Semester 8</option>
+</select>
+
+            </div>
+            <div class="form-group">
+              <label for="gradeAdmissionYear">Admission Year:</label>
+              <select id="gradeAdmissionYear" required>
+                <option value="">-- Select Year --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="gradeBranch">Select Branch:</label>
+              <select id="gradeBranch" required>
+                <option value="">-- Select Branch --</option>
+                <option value="CSE">Computer Science & Engineering</option>
+                <option value="EEE">Electrical & Electronics Engineering</option>
+                <option value="IT">Information Technology</option>
+                <option value="IT">Electronics & Telecommunication </option>
+                <option value="CE">Computer Engineering</option>
+
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="gradeExcelFile">Upload Grade File (Excel):</label>
+              <input type="file" id="gradeExcelFile" accept=".xlsx, .xls" required>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+          </form>
+        </div>
+
+        <div class="update-slab">
+          <form id="publishForm">
+  <div class="form-group">
+    <label for="publishProgram">Select Program:</label>
+    <select id="publishProgram" required>
+      <option value="">-- Program --</option>
+      <option value="b-tech">BTech</option>
+      <option value="m-tech">MTech</option>
+      <option value="phd">PhD</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <select id="publishSemester" required>
+  <option value="">-- Select Semester --</option>
+  <option value="sem1">Semester 1</option>
+  <option value="sem2">Semester 2</option>
+  <option value="sem3">Semester 3</option>
+  <option value="sem4">Semester 4</option>
+  <option value="sem5">Semester 5</option>
+  <option value="sem6">Semester 6</option>
+  <option value="sem7">Semester 7</option>
+  <option value="sem8">Semester 8</option>
+</select>
+
+  </div>
+  <div class="form-group">
+    <label for="publishAdmissionYear">Admission Year:</label>
+    <select id="publishAdmissionYear" required>
+      <option value="">-- Select Year --</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="publishBranch">Select Branch:</label>
+    <select id="publishBranch" required>
+      <option value="">-- Select Branch --</option>
+      <option value="CSE">Computer Science & Engineering</option>
+      <option value="EEE">Electrical & Electronics Engineering</option>
+      <option value="IT">Information Technology</option>
+      <option value="ETC">Electronics & Telecommunication</option>
+      <option value="CE">Computer Engineering</option>
+    </select>
+  </div>
+
+  <button type="submit" id="publishResultsBtn" class="submit-btn">Publish Results</button>
+</form>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("mainContent");
+
+  // Array to store submitted grade data
+  let gradeData = [];
+
+// Populate Admission Year dropdown (from currentYear - 10 to currentYear)
+const populateAdmissionYears = () => {
+  const currentYear = new Date().getFullYear(); // e.g., 2025
+  const startYear = currentYear - 10; // 2015
+  const endYear = currentYear;       // 2025
+
+  const admissionYearSelect = document.getElementById("gradeAdmissionYear");
+  for (let year = startYear; year <= endYear; year++) {
+    const option = document.createElement("option");
+    option.value = year;
+    option.textContent = year;
+    admissionYearSelect.appendChild(option);
+  }
+};
+
+const populateAdmissionYearspublish = () => {
+  const currentYear = new Date().getFullYear(); // e.g., 2025
+  const startYear = currentYear - 10; // 2015
+  const endYear = currentYear;       // 2025
+
+  const admissionYearSelect = document.getElementById("publishAdmissionYear");
+  for (let year = startYear; year <= endYear; year++) {
+    const option = document.createElement("option");
+    option.value = year;
+    option.textContent = year;
+    admissionYearSelect.appendChild(option);
+  }
+};
+
+  // Populate Semester dropdown based on selected program
+  const populateSemesters = () => {
+    const programSelect = document.getElementById("gradeProgram");
+    const semesterSelect = document.getElementById("gradeSemester");
+}
+
+
+  // Handle form submission to store grade data
+const handleGradeSubmission = () => {
+  const form = document.getElementById("gradeInputForm");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const program = document.getElementById("gradeProgram").value;
+    const branch = document.getElementById("gradeBranch").value;
+    const admissionYear = document.getElementById("gradeAdmissionYear").value;
+
+    const semester = document.getElementById("gradeSemester").value;
+    if (!semester) {
+      alert("Please select a semester!");
+      return;
+    }
+
+    const fileInput = document.getElementById("gradeExcelFile");
+    if (!fileInput.files.length) {
+      alert("Please upload an Excel file!");
+      return;
+    }
+
+    const file = fileInput.files[0];
+    const data = await file.arrayBuffer();
+
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+    if (rows.length === 0) {
+      alert("Excel file is empty!");
+      return;
+    }
+
+    // Extract course codes dynamically from first row headers
+    const headers = Object.keys(rows[0]);
+    const courseCodes = new Set();
+
+    headers.forEach(header => {
+      const match = header.match(/^(\w+)\s(Name|Grade|GP Before Penalty|Penalty|Net GP|Credit)$/i);
+      if (match) {
+        courseCodes.add(match[1]);
+      }
+    });
+
+    const courseCodeList = Array.from(courseCodes);
+    const parsedData = {};
+
+    rows.forEach(row => {
+      const studentId = row['Student ID'];
+      if (!studentId) return;
+
+      parsedData[studentId] = {
+        [semester]: {
+          courses: {},
+          finalResult: {
+            sgpa: Number(row['SGPA']),
+            cgpa: Number(row['CGPA']),
+          },
+        },
+      };
+
+      courseCodeList.forEach(courseCode => {
+        const nameKey = `${courseCode} Name`;
+        if (row[nameKey]) {
+          parsedData[studentId][semester].courses[courseCode] = {
+            name: row[nameKey],
+            gp_before_penalty: Number(row[`${courseCode} GP Before Penalty`]),
+            penalty: Number(row[`${courseCode} Penalty`]),
+            net_gp: Number(row[`${courseCode} Net GP`]),
+            grade: (row[`${courseCode} Grade`] || "").toString().toLowerCase(),
+            credit: Number(row[`${courseCode} Credit`]),
+          };
+        }
+      });
+    });
+
+    console.log("Parsed JSON:", parsedData);
+
+    const url = `https://13.201.146.238/api/students/results/bulk/${branch}/${program}/${admissionYear}`;
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(parsedData),
+      });
+
+      if (response.ok) {
+        alert("Grade data submitted successfully!");
+        form.reset();
+      } else {
+        alert("Error submitting grades!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Network or server error!");
+    }
+  });
+};
+
+
+
+  // Handle publishing results
+const handlePublishResults = () => {
+  const publishBtn = document.getElementById("publishResultsBtn");
+
+  publishBtn.addEventListener("click", async (e) => {
+    e.preventDefault(); // Prevent form submission/reload
+
+    const program = document.getElementById("publishProgram").value;
+    const semester = document.getElementById("publishSemester").value;
+    const batchYear = document.getElementById("publishAdmissionYear").value;
+    const branch = document.getElementById("publishBranch").value;
+
+    // Basic form validation
+    if (!program || !semester || !batchYear || !branch) {
+      alert("Please fill in all fields before publishing results.");
+      return;
+    }
+
+    const endpoint = `https://13.201.146.238/results/publish?semester=${encodeURIComponent(semester)}&branch=${encodeURIComponent(branch)}&program=${encodeURIComponent(program)}&batchYear=${encodeURIComponent(batchYear)}`;
+
+
+window.addEventListener("DOMContentLoaded", handlePublishResults);
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST"
+      });
+
+      if (response.ok) {
+        alert("Results published successfully!");
+      } else {
+        alert("Failed to publish results. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error publishing results:", error);
+      alert("An error occurred while publishing the results.");
+    }
+  });
+};
+
+  // Initialize functions on page load
+  populateAdmissionYears();
+  populateAdmissionYearspublish();
+  handleGradeSubmission();
+  handlePublishResults();
+
+  // Sidebar toggle for mobile
+  menuToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("show");
+  });
+
+  // Close sidebar when clicking outside on mobile
+  document.addEventListener("click", (e) => {
+    if (window.innerWidth <= 768) {
+      if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+        sidebar.classList.remove("show");
+      }
+    }
+  });
+
+  // Synchronized scrolling between sidebar and main content
+  let isSyncingSidebar = false;
+  let isSyncingMain = false;
+
+  sidebar.addEventListener("scroll", () => {
+    if (!isSyncingSidebar) {
+      isSyncingMain = true;
+      const sidebarScrollRatio = sidebar.scrollTop / (sidebar.scrollHeight - sidebar.clientHeight);
+      mainContent.scrollTop = sidebarScrollRatio * (mainContent.scrollHeight - mainContent.clientHeight);
+    }
+    isSyncingSidebar = false;
+  });
+
+  mainContent.addEventListener("scroll", () => {
+    if (!isSyncingMain) {
+      isSyncingSidebar = true;
+      const mainScrollRatio = mainContent.scrollTop / (mainContent.scrollHeight - mainContent.clientHeight);
+      sidebar.scrollTop = mainScrollRatio * (sidebar.scrollHeight - sidebar.clientHeight);
+    }
+    isSyncingMain = false;
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+</body>
+</html>

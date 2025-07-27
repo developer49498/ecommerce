@@ -1,0 +1,182 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Timetable Upload</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="e_supdate.css">
+</head>
+<body>
+
+<header class="mobile-header">
+  <button id="menuToggle"><i class="fas fa-bars"></i></button>
+  <h2>Timetable Upload</h2>
+</header>
+
+<div class="container">
+  <div class="scroll-container">
+    <aside class="sidebar" id="sidebar">
+      <a href="e_home.html" class="back-btn-sidebar">
+        <i class="fas fa-arrow-left"></i>
+        Back to Dashboard
+      </a>
+      <button class="side-btn"><i class="fas fa-bullhorn"></i> Notice Board</button>
+      <button class="side-btn"><i class="fas fa-user-graduate"></i> Student Details</button>
+      <button class="side-btn"><i class="fas fa-address-book"></i> Student FeeLedger</button>
+      <button class="side-btn"><i class="fas fa-upload"></i> Student Update</button>
+      <button class="side-btn"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</button>
+      <button class="side-btn"><i class="fas fa-user-edit"></i> Faculty Update</button>
+      <button class="side-btn"><i class="fas fa-clipboard-check"></i> Grade Input</button>
+      <button class="side-btn"><i class="fas fa-graduation-cap"></i> Student Grade Details</button>
+      <button class="side-btn active"><i class="fas fa-calendar-alt"></i> Timetable</button>
+      <div class="logo-container">
+        <img src="IIIT LOGO 3.svg" alt="IIIT Logo" class="logo"/>
+        <p class="footer-text">IIIT Student Management System</p>
+        <a href="https://www.iiit-bh.ac.in" class="footer-link" target="_blank">www.iiit-bh.ac.in</a>
+      </div>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+      <div class="header-line">
+        <h1><i class="fas fa-calendar-alt"></i> Timetable Upload</h1>
+        <hr />
+      </div>
+      
+      <div class="student-update-container">
+        <div class="update-slab">
+          <h2><i class="fas fa-calendar-alt"></i> Upload Timetable</h2>
+          <form id="timetableUploadForm">
+            <div class="form-group">
+              <label for="timetableFile">Upload Timetable Document (PDF):</label>
+              <input type="file" id="timetableFile" accept=".pdf" required>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+          </form>
+        </div>
+
+        <div class="update-slab">
+          <h2><i class="fas fa-file-pdf"></i> Timetable Preview</h2>
+          <div id="pdfViewerContainer" style="width: 100%; height: 600px; border: 1px solid #e0d7ef; border-radius: 12px; overflow: hidden; background: #fff;">
+            <div id="pdfViewer" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 15px;">
+              <i class="fas fa-file-pdf" style="font-size: 48px; color: #a259c6;"></i>
+              <p style="color: #4b006e; font-size: 16px;">No timetable uploaded yet</p>
+              <p style="color: #2d014d; font-size: 14px;">Upload a PDF file to preview it here</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("mainContent");
+
+  let timetableData = [];
+
+ document.getElementById('timetableUploadForm').addEventListener('submit', async function (e) {
+    e.preventDefault(); // Prevent form from reloading the page
+
+    const fileInput = document.getElementById('timetableFile');
+    const file = fileInput.files[0];
+
+    if (!file || file.type !== "application/pdf") {
+      alert("Please select a valid PDF file.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    try {
+      const response = await fetch('https://13.201.146.238/api/github/upload_timetable', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed with status: ${response.status}`);
+      }
+
+      const result = await response.text();
+      console.log("Upload successful:", result);
+      alert("Timetable Uploaded successfully.");
+
+     
+
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Failed to upload timetable. Please try again.");
+    }
+  });
+
+  window.addEventListener('DOMContentLoaded', displayPDF);
+
+  async function displayPDF() {
+  const pdfViewer = document.getElementById('pdfViewer');
+
+  try {
+    const response = await fetch('https://13.201.146.238/api/github/proxy_timetable');
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch timetable PDF: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const pdfUrl = URL.createObjectURL(blob);
+
+    pdfViewer.innerHTML = `
+      <iframe src="${pdfUrl}" width="100%" height="100%" style="border: none;"></iframe>
+    `;
+  } catch (error) {
+    console.error("Error loading timetable:", error);
+    pdfViewer.innerHTML = `
+      <i class="fas fa-exclamation-triangle" style="font-size: 36px; color: #c0392b;"></i>
+      <p style="color: #c0392b;">Failed to load timetable PDF.</p>
+    `;
+  }
+}
+
+
+  menuToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("show");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (window.innerWidth <= 768) {
+      if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+        sidebar.classList.remove("show");
+      }
+    }
+  });
+
+  let isSyncingSidebar = false;
+  let isSyncingMain = false;
+
+  sidebar.addEventListener("scroll", () => {
+    if (!isSyncingSidebar) {
+      isSyncingMain = true;
+      const sidebarScrollRatio = sidebar.scrollTop / (sidebar.scrollHeight - sidebar.clientHeight);
+      mainContent.scrollTop = sidebarScrollRatio * (mainContent.scrollHeight - mainContent.clientHeight);
+    }
+    isSyncingSidebar = false;
+  });
+
+  mainContent.addEventListener("scroll", () => {
+    if (!isSyncingMain) {
+      isSyncingSidebar = true;
+      const mainScrollRatio = mainContent.scrollTop / (mainContent.scrollHeight - mainContent.clientHeight);
+      sidebar.scrollTop = mainScrollRatio * (sidebar.scrollHeight - sidebar.clientHeight);
+    }
+    isSyncingMain = false;
+  });
+</script>
+
+</body>
+</html>

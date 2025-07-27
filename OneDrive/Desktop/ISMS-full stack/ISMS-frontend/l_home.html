@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+    <link rel="stylesheet" href="l_home.css" />
+</head>
+<body>
+
+<header>
+    <div class="header-left">
+        <h2 class="dashboard-heading">Central Library</h2>
+    </div>
+    <div class="header-right">
+        <img src="IIIT LOGO 3.svg" alt="IIIT Hyderabad Logo" class="logo"/>
+        <button class="logout">Logout</button>
+    </div>
+</header>
+
+<div class="dashboard">
+    <a href="l_notice.html" class="card">
+    <img src="Notice.svg" alt="Notice Board Icon"/>
+    <p>Notice Board</p>
+</a>
+
+<a href="l_add.html" class="card">
+    <img src="book-details.svg" alt="Student Icon"/>
+    <p>Add New Book</p>
+</a>
+
+<a href="l_issue.html" class="card">
+    <img src="book-issue.svg" alt="Book Issue Icon"/>
+    <p>Book Issue</p>
+</a>
+
+<a href="l_return.html" class="card">
+    <img src="book-return.svg" alt="Book Return Icon"/>
+    <p>Book Return</p>
+</a>
+
+<a href="l_details.html" class="card">
+    <img src="book-details.svg" alt="Book Details Icon"/>
+    <p>Book Details</p>
+</a>
+
+<a href="l_timetable.html" class="card">
+    <img src="timetable.svg" alt="Timetable Icon"/>
+    <p>Time Table</p>
+</a>
+
+<a href="l_password.html" class="card">
+    <img src="password.svg" alt="Password Icon"/>
+    <p>Change Password</p>
+</a>
+
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const baseUrl = "https://13.201.146.238";
+    const uid = localStorage.getItem("uid");
+
+    // Optional redirect if uid not found
+    if (!uid) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    // 🔒 Logout logic
+    document.querySelector(".logout").addEventListener("click", async function () {
+      try {
+        const response = await fetch(`${baseUrl}/api/auth/logout?uid=${encodeURIComponent(uid)}`, {
+          method: "POST"
+        });
+
+        if (response.ok) {
+          localStorage.clear();               // Clear all session data
+          window.location.href = "index.html"; // Redirect to landing page
+        } else {
+          const errorText = await response.text();
+          alert("Logout failed: " + errorText);
+        }
+      } catch (error) {
+        alert("Error connecting to server: " + error.message);
+      }
+    });
+  });
+</script>
+
+
+
+</body>
+</html>

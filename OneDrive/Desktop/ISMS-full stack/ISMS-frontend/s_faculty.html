@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="s_faculty.css">
+</head>
+<body>
+    <div class="top-bar">
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="portal-title">
+            <img src="IIIT%20LOGO%203.svg" alt="IIIT Logo" class="logo">
+            <span>Student Portal</span>
+        </div>
+        <div class="top-buttons">
+            <a href="login.html" class="top-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <ul class="nav-links">
+                <li><a href="s_faculty.html"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a></li>
+                <li><a href="s_student.html"><i class="fas fa-user-graduate"></i> Student Details</a></li>
+                <li><a href="s_notice.html"><i class="fas fa-bullhorn"></i> Notice Board</a></li>
+                <li><a href="s_timetable.html"><i class="fas fa-clock"></i> Timetable</a></li>
+                <li><a href="s_grievance.html"><i class="fas fa-comment-alt"></i> Grievance</a></li>
+                <li><a href="s_courses.html"><i class="fas fa-book"></i> Classes</a></li>
+                <li><a href="s_grade.html"><i class="fas fa-chart-bar"></i> Grades</a></li>
+                <li><a href="s_library.html"><i class="fas fa-book-open"></i> Books</a></li>
+                <li><a href="s_outstanding.html"><i class="fas fa-money-bill-wave"></i> Outstanding</a></li>
+                <li><a href="s_fee.html"><i class="fas fa-file-invoice-dollar"></i> Fee Ledger</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+        <div class="header-line">
+            <h1><i class="fas fa-chalkboard-teacher"></i> Faculty Details</h1>
+            <hr />
+        </div>
+
+        <div class="faculty-section">
+            <div class="search-container">
+                <input type="text" id="searchFacultyID" placeholder="Search by ID" />
+                <input type="text" id="searchFacultyName" placeholder="Search by Name" />
+                <select id="searchDepartment">
+                    <option value="alldepartments">All Departments</option>
+                    <option value="CSE">Computer Science</option>
+                    <option value="ETC">Electronics and Telecommunication Engineering</option>
+                    <option value="BSH">Basic Science and Humanities</option>
+                    <option value="EEE">Electrical and Electronics Engineering </option>
+                </select>
+                <button onclick="searchFaculty()">Search</button>
+            </div>
+
+            <div class="results-container">
+                <ul id="facultyList"></ul>
+                <p id="noFacultyMessage">No faculty found matching your search criteria.</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="popup-overlay" id="popupOverlay"></div>
+    <div class="faculty-popup" id="facultyPopup">
+        <img id="popupPhoto" src="https://via.placeholder.com/120" alt="Faculty Photo" />
+        <h3 id="popupName">Faculty Name</h3>
+        <div class="faculty-info-grid">
+            <div class="info-row">
+                <span class="label">Unique ID</span>
+                <span class="value" id="popupID"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Department</span>
+                <span class="value" id="popupDepartment"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Designation</span>
+                <span class="value" id="popupDesignation"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Experience</span>
+                <span class="value" id="popupExperience"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Currently Teaching</span>
+                <span class="value" id="popupTeaching"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Qualification</span>
+                <span class="value" id="popupQualification"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Contact</span>
+                <span class="value" id="popupContact"></span>
+            </div>
+            <!-- <div class="info-row">
+                <span class="label">Last Login</span>
+                <span class="value" id="popupLogin"></span>
+            </div> -->
+        </div>
+        <button class="close-btn" onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+       
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('noFacultyMessage').style.display = 'none';
+            document.getElementById('facultyList').style.display = 'none';
+        });
+
+const $ = (id) => document.getElementById(id);
+
+
+const endpoints = {
+  byId:   (id)   => `https://13.201.146.238/api/faculty/id/${id}`,
+  byName: (name) => `https://13.201.146.238/api/faculty/name/${name}`,
+  byDept: (dept) => `https://13.201.146.238/api/faculty/department/${dept}`,
+  photoUrl: (id) => `https://13.201.146.238/api/github/faculty-image-url/${id}`
+};
+
+
+const idInp   = $('searchFacultyID');
+  const nameInp = $('searchFacultyName');
+  const deptSel = $('searchDepartment');
+  const listEl  = $('facultyList');
+  const noMsg   = $('noFacultyMessage');
+
+
+  idInp.addEventListener('input', () => {
+  nameInp.disabled = !!idInp.value.trim();
+});
+
+nameInp.addEventListener('input', () => {
+  idInp.disabled = !!nameInp.value.trim();
+});
+
+async function searchFaculty() {
+  
+  listEl.innerHTML = '';
+  noMsg.style.display = 'none';
+  listEl.style.display = 'none';
+
+  let uri = '';
+  if (idInp.value.trim())          uri = endpoints.byId(idInp.value.trim());
+  else if (nameInp.value.trim())   uri = endpoints.byName(nameInp.value.trim());
+  else if (deptSel.value) {
+    uri = deptSel.value === 'alldepartments'
+          ? 'https://13.201.146.238/api/faculty/all'
+          : endpoints.byDept(deptSel.value);
+  } else return;
+
+  try {
+    const res = await fetch(uri);
+    if (!res.ok) throw new Error(res.status);
+
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : [data];
+
+    if (!list.length) {
+      noMsg.style.display = 'block';
+      return;
+    }
+
+    listEl.style.display = 'block';
+    list.forEach(fac => {
+      const li = document.createElement('li');
+      li.textContent = `${fac.name} (${fac.id}) - ${fac.department} ${fac.designation}`;
+      li.onclick = () => showFacultyDetails(fac);
+      listEl.appendChild(li);
+    });
+  } catch (err) {
+    console.error('Search failed:', err);
+    noMsg.textContent = 'Unable to fetch faculty data. Try again later.';
+    noMsg.style.display = 'block';
+  }
+}
+
+
+async function showFacultyDetails(faculty) {
+  $('popupName').innerText         = faculty.name;
+  $('popupID').innerText           = faculty.id;
+  $('popupDepartment').innerText   = faculty.department;
+  $('popupDesignation').innerText  = faculty.designation;
+  $('popupExperience').innerText   = faculty.experience;
+  $('popupQualification').innerText = faculty.qualification;
+  $('popupContact').innerText      = faculty.contact;
+//   $('popupLogin').innerText        = faculty.lastLogin;
+
+  const teachingList = faculty.currentlyTeaching || [];
+  $('popupTeaching').innerHTML = teachingList.length
+    ? `<ul class="teaching-scroll">
+        ${teachingList.map(item => `<li><strong>${item.subject}</strong> - Class ${item.classId}</li>`).join('')}
+       </ul>`
+    : '<em>Not currently assigned to any class.</em>';
+
+  // Load profile picture
+  try {
+    const imgRes = await fetch(endpoints.photoUrl(faculty.id));
+    if (imgRes.ok) {
+      const url = await imgRes.text();
+      $('popupPhoto').src = url || 'https://via.placeholder.com/120';
+    }
+  } catch {
+    $('popupPhoto').src = 'https://via.placeholder.com/120';
+  }
+
+  $('facultyPopup').style.display = 'flex';
+  $('popupOverlay').style.display = 'block';
+}
+
+
+$('searchFacultyID').addEventListener('keypress', e => { if (e.key === 'Enter') searchFaculty(); });
+$('searchFacultyName').addEventListener('keypress', e => { if (e.key === 'Enter') searchFaculty(); });
+
+
+
+        // Close Popup
+        const closePopup = () => {
+            document.getElementById("facultyPopup").style.display = "none";
+            document.getElementById("popupOverlay").style.display = "none";
+        };
+
+        // Mobile menu toggle functionality for navbar
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navbar = document.querySelector('.navbar');
+        const body = document.body;
+
+        menuToggle.addEventListener('click', () => {
+            navbar.classList.toggle('active');
+            body.classList.toggle('menu-open');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.navbar') && !e.target.closest('.menu-toggle')) {
+                navbar.classList.remove('active');
+                body.classList.remove('menu-open');
+            }
+        });
+
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navbar.classList.remove('active');
+                body.classList.remove('menu-open');
+            });
+        });
+
+    </script>
+</body>
+</html>

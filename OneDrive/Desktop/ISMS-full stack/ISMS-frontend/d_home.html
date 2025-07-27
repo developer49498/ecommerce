@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+  <link rel="stylesheet" href="d_home.css" />
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h2 class="dashboard-heading">Welcome Director</h2>
+  </div>
+  <div class="header-right">
+    <img src="IIIT LOGO 3.svg" alt="IIIT Logo" class="logo"/>
+  </div>
+</header>
+
+<!-- 🌟 Shadow Box with Director Info -->
+<div class="shadow-box">
+  <div class="director-photo">
+    <!-- ✅ Added back the img tag for JS to update the src -->
+    <img src="" alt="Director Photo" />
+  </div>
+  <div class="info">
+    <h3></h3>
+    <h5>Director, IIIT Bhubaneswar</h5>
+    <p class="email"></p>
+    <button class="logout">Logout</button>
+  </div>
+</div>
+
+<!-- 🔲 Dashboard Cards -->
+<div class="dashboard">
+<a href="d_notice.html">
+  <div class="card">
+    <img src="Notice.svg" alt="Notice Board Icon"/>
+    <p>Notice Board Input</p>
+  </div>
+</a>
+
+<a href="d_student.html">
+  <div class="card">
+    <img src="./student.svg" alt="Student Icon"/>
+    <p>Student Details</p>
+  </div>
+</a>
+
+<a href="d_faculty.html">
+  <div class="card">
+    <img src="./faculty.svg" alt="Faculty Icon"/>
+    <p>Faculty Details</p>
+  </div>
+</a>
+
+<a href="d_timetable.html">
+  <div class="card">
+    <img src="./timetable.svg" alt="Timetable Icon"/>
+    <p>Time Table</p>
+  </div>
+</a>
+
+<a href="d_grievance.html">
+  <div class="card">
+    <img src="./grievance.svg" alt="Grievance Icon"/>
+    <p>Grievance</p>
+  </div>
+</a>
+
+<a href="d_password.html">
+  <div class="card">
+    <img src="./password.svg" alt="Password Icon"/>
+    <p>Change Password</p>
+  </div>
+</a>
+
+</div>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const baseUrl = "https://13.201.146.238";
+    const uid = localStorage.getItem("uid");
+
+    // If uid not found, redirect to welcome.html (optional safeguard)
+    if (!uid) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    // Fetch director details
+    fetch(`${baseUrl}/api/director/get_director_details`)
+      .then(response => {
+        if (!response.ok) throw new Error("Failed to fetch director details");
+        return response.json();
+      })
+      .then(data => {
+        document.querySelector(".info h3").textContent = data.name;
+        document.querySelector(".info .email").textContent = `Email: ${data.email}`;
+      })
+      .catch(error => {
+        console.error("Error loading director details:", error);
+      });
+
+    // Fetch and display director image
+    fetch(`${baseUrl}/api/github/get-director-image`)
+      .then(response => {
+        if (!response.ok) throw new Error("Failed to fetch image URL");
+        return response.text();
+      })
+      .then(imageUrl => {
+        document.querySelector(".director-photo img").src = imageUrl;
+      })
+      .catch(error => {
+        console.error("Error loading director image:", error);
+      });
+
+    // 🔒 Logout Logic
+    document.querySelector(".logout").addEventListener("click", async function () {
+      try {
+        const response = await fetch(`${baseUrl}/api/auth/logout?uid=${encodeURIComponent(uid)}`, {
+          method: "POST"
+        });
+
+        if (response.ok) {
+          localStorage.clear();
+          window.location.href = "index.html";
+        } else {
+          const errorText = await response.text();
+          alert("Logout failed: " + errorText);
+        }
+      } catch (error) {
+        alert("Error connecting to server: " + error.message);
+      }
+    });
+  });
+
+
+</script>
+
+</body>
+</html>

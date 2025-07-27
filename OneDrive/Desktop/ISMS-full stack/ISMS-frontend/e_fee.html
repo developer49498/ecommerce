@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IIIT-BH Student Management System</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="/iiit_logo_fevicon.png">
+  <link rel="stylesheet" href="e_fee.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<header class="mobile-header">
+  <button id="menuToggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+  <h2>Student Fee Ledger</h2>
+</header>
+
+<div class="container">
+  <aside class="sidebar" id="sidebar">
+    <a href="e_home.html" class="back-btn-sidebar">
+      <i class="fas fa-arrow-left"></i>
+      Back to Dashboard
+    </a>
+    <a href="e_notice.html" class="side-btn"><i class="fas fa-bullhorn"></i> Notice Board</a>
+<a href="e_student.html" class="side-btn"><i class="fas fa-user-graduate"></i> Student Details</a>
+<a href="e_fee.html" class="side-btn"><i class="fas fa-address-book"></i> Student FeeLedger</a>
+<a href="e_supdate.html" class="side-btn"><i class="fas fa-upload"></i> Student Update</a>
+<a href="e_faculty.html" class="side-btn"><i class="fas fa-chalkboard-teacher"></i> Faculty Details</a>
+<a href="e_fupdate.html" class="side-btn"><i class="fas fa-user-edit"></i> Faculty Update</a>
+<a href="e_ginput.html" class="side-btn"><i class="fas fa-clipboard-check"></i> Grade Input</a>
+<a href="e_grade.html" class="side-btn"><i class="fas fa-graduation-cap"></i> Student Grade Details</a>
+<a href="e_timetable.html" class="side-btn active"><i class="fas fa-calendar-alt"></i> Timetable</a>
+
+    
+    
+    <div class="logo-container">
+      <img src="IIIT LOGO 3.svg" alt="IIIT Logo" class="logo"/>
+      <p class="footer-text">IIIT Student Management System</p>
+      <a href="https://www.iiit-bh.ac.in" class="footer-link" target="_blank">www.iiit-bh.ac.in</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="header-line">
+      <h1><i class="fas fa-address-book"></i> Student Fee Ledger</h1>
+      <hr />
+      <div class="fee-ledger-container">
+        <h2>Student Fee Ledger</h2>
+        
+        <!-- Student Search Section -->
+        <div class="search-section">
+          <div class="form-group">
+            <label for="student-id">Student ID</label>
+            <input type="text" id="student-id" placeholder="Enter Student ID" />
+          </div>
+          <button class="submit-btn search-btn">Search</button>
+        </div>
+        
+        <!-- Student Info Section (Hidden until search) -->
+        <div class="student-info" style="display: none;">
+          <h3>Student Information</h3>
+          <p><strong>Name:</strong> <span id="student-name"></span></p>
+          <p><strong>Student ID:</strong> <span id="student-id-display"></span></p>
+          <p><strong>Program:</strong> <span id="student-program"></span></p>
+          <p><strong>Branch:</strong> <span id="student-branch"></span></p>
+        </div>
+        
+        <!-- Semester and Fee Details Section -->
+        <div class="fee-section" style="display: none;">
+          <div class="form-group semester-selector">
+            <label for="semester">Semester</label>
+            <select id="semester">
+                            <option value="">Select semester</option>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                            <option value="7">Semester 7</option>
+                            <option value="8">Semester 8</option>
+                        </select>
+          </div>
+          
+          <!-- Fee Summary (Total, Paid, Outstanding) -->
+          <div class="fee-summary">
+            <p><strong>Total Amount:</strong> <span id="total-amount"></span></p>
+            <p><strong>Current Outstanding Amount:</strong> <span id="outstanding-amount"></span></p>
+          </div>
+          
+          <!-- Fee Table -->
+          <div class="fee-table-container">
+            <table class="fee-table">
+              <thead>
+                <tr>
+                  <th>Fee Type</th>
+                  <th>Amount (INR)</th>
+                </tr>
+              </thead>
+              <tbody id="fee-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+  const searchBtn = document.querySelector(".search-btn");
+  const studentIdInput = document.getElementById("student-id");
+  const studentInfo = document.querySelector(".student-info");
+  const feeSection = document.querySelector(".fee-section");
+  const semesterSelect = document.getElementById("semester");
+  const feeTableBody = document.getElementById("fee-table-body");
+  const totalAmountDisplay = document.getElementById("total-amount");
+  const paidAmountDisplay = document.getElementById("paid-amount");
+  const outstandingAmountDisplay = document.getElementById("outstanding-amount");
+
+  // Mobile menu toggle
+  menuToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("show");
+  });
+
+  // Close sidebar when clicking outside
+  document.addEventListener("click", (e) => {
+    if (window.innerWidth <= 768) {
+      if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+        sidebar.classList.remove("show");
+      }
+    }
+  });
+
+
+  // Function to handle search logic (used by both button click and Enter key)
+  async function performSearch() {
+    const studentIdInput = document.getElementById("student-id");
+    const studentId = studentIdInput.value.trim().toLowerCase();
+
+    if (!studentId) {
+        alert("Please enter a Student ID.");
+        return;
+    }
+
+    try {
+        // Parse student ID
+        const programmeChar = studentId.charAt(0);
+        const branchCode = parseInt(studentId.charAt(1));
+        const batchYear = 2000 + parseInt(studentId.substring(2, 4));
+
+        const programmeMap = { 'b': "b-tech", 'a': "m-tech", 'c': "ph.d" };
+        const branchMap = { 1: "CSE", 2: "ETC", 3: "EEE", 4: "IT", 5: "CE" };
+
+        const programme = programmeMap[programmeChar];
+        const branch = branchMap[branchCode];
+
+        if (!programme || !branch || isNaN(batchYear)) {
+            throw new Error("Invalid Student ID format.");
+        }
+
+        // Store meta globally
+        currentStudentMeta = { studentId, programme, branch, batchYear };
+
+        // Fetch student info from backend
+        const apiUrl = `https://13.201.146.238/api/students/searchById/${branch}/${programme}/${batchYear}/${studentId}`;
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+            throw new Error("Student not found.");
+        }
+
+        const student = await response.json();
+
+        // Update UI
+        document.getElementById("student-name").textContent = student.name || "N/A";
+        document.getElementById("student-id-display").textContent = studentId;
+        document.getElementById("student-program").textContent = programme.toUpperCase();
+        document.getElementById("student-branch").textContent = branch;
+
+        document.querySelector(".student-info").style.display = "block";
+        document.querySelector(".fee-section").style.display = "block";
+
+
+    } catch (error) {
+        console.error(error);
+        alert(error.message || "Error fetching student details.");
+        document.querySelector(".student-info").style.display = "none";
+        document.querySelector(".fee-section").style.display = "none";
+        currentStudentMeta = null;
+    }
+}
+
+
+  // Search button click handler
+  searchBtn.addEventListener("click", performSearch);
+
+  // Enter key press handler for the student ID input
+  studentIdInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent any default form submission
+      performSearch();
+    }
+  });
+
+  // Semester selection handler
+  semesterSelect.addEventListener("change", (e) => {
+    updateFeeTable(e.target.value);
+  });
+
+//  Update fee table and amounts
+async function updateFeeTable(semester) {
+    if (!currentStudentMeta) {
+        alert("Student not loaded. Please perform a search first.");
+        return;
+    }
+
+    const studentId = currentStudentMeta.studentId;
+    const feeTableBody = document.getElementById("fee-table-body");
+    const totalAmountDisplay = document.getElementById("total-amount");
+    const outstandingAmountDisplay = document.getElementById("outstanding-amount");
+
+    try {
+        // --- Fetch semester fee data ---
+        const feeDataUrl = `https://13.201.146.238/api/student-fee/fee-data?studentId=${studentId}&semester=${semester}`;
+        const feeResponse = await fetch(feeDataUrl);
+
+        if (!feeResponse.ok) {
+            throw new Error("Fee data not found");
+        }
+
+        const feeData = await feeResponse.json();
+        const { totalAmount, ...feeItems } = feeData;
+
+        // Populate fee table
+        feeTableBody.innerHTML = "";
+        Object.entries(feeItems).forEach(([type, amount]) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${type}</td>
+                <td>${amount.toLocaleString('en-IN')}</td>
+            `;
+            feeTableBody.appendChild(row);
+        });
+
+        totalAmountDisplay.textContent = totalAmount.toLocaleString('en-IN');
+
+        // --- Fetch outstanding amount ---
+        const outstandingUrl = `https://13.201.146.238/api/student-fee/outstanding?studentId=${studentId}`;
+        const outstandingResponse = await fetch(outstandingUrl);
+
+        if (!outstandingResponse.ok) {
+            throw new Error("Outstanding data not found");
+        }
+
+        const { outstandingAmount } = await outstandingResponse.json();
+        outstandingAmountDisplay.textContent = outstandingAmount.toLocaleString('en-IN');
+        outstandingAmountDisplay.style.color = outstandingAmount === 0 ? '#28a745' : '#dc3545';
+
+    } catch (error) {
+        console.error("Fee table update error:", error);
+
+        // Reset all display fields on error
+        feeTableBody.innerHTML = "";
+        totalAmountDisplay.textContent = "";
+        outstandingAmountDisplay.textContent = "";
+        outstandingAmountDisplay.style.color = "inherit"; // Reset color
+    }
+}
+
+
+</script>
+
+</body>
+</html>
